@@ -1,405 +1,347 @@
-/**
- * ==========================================================
- * PORTFOLIO DE JEAN-HOREB SIHOULI — MOTION & PARTICULES
- * Profil GitHub : Yh290507 | IIT Grand-Bassam
- * Sans aucun émoji — Double thème Sombre & Clair
- * ==========================================================
- */
+$(function () {
+  const $sections = $('main section[id]');
+  const $navLinks = $('.nav-pill-link');
+  const $mobileMenu = $('#mobile-menu');
+  document.body.classList.add('js-motion');
 
-$(document).ready(function() {
-  
-  // ----------------------------------------------------------
-  // 1. GESTION DU THÈME SOMBRE (PAR DÉFAUT) & CLAIR
-  // ----------------------------------------------------------
-  const savedTheme = localStorage.getItem('portfolio_theme') || 'dark';
-
-  function applyTheme(theme) {
-    if (theme === 'light') {
-      $('body').removeClass('dark-mode').addClass('light-mode');
-      $('#theme-icon-sun').removeClass('hidden');
-      $('#theme-icon-moon').addClass('hidden');
-      localStorage.setItem('portfolio_theme', 'light');
-    } else {
-      $('body').removeClass('light-mode').addClass('dark-mode');
-      $('#theme-icon-moon').removeClass('hidden');
-      $('#theme-icon-sun').addClass('hidden');
-      localStorage.setItem('portfolio_theme', 'dark');
-    }
-  }
-
-  applyTheme(savedTheme);
-
-  $('#theme-toggle-btn').on('click', function(e) {
-    e.preventDefault();
-    const current = $('body').hasClass('light-mode') ? 'light' : 'dark';
-    applyTheme(current === 'light' ? 'dark' : 'light');
-  });
-
-  // ----------------------------------------------------------
-  // 2. CANVAS DES PARTICULES ANIMÉES EN ARRIÈRE-PLAN
-  // ----------------------------------------------------------
-  const canvas = document.getElementById('bg-canvas');
-  if (canvas) {
-    const ctx = canvas.getContext('2d');
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
-
-    $(window).on('resize', function() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    });
-
-    const particles = [];
-    const count = Math.min(Math.floor(window.innerWidth / 22), 55);
-
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.7,
-        vy: (Math.random() - 0.5) * 0.7,
-        radius: Math.random() * 2 + 1
+  // Révèle les éléments à leur arrivée à l’écran, sans masquer le contenu si JS ne charge pas.
+  const revealTargets = document.querySelectorAll('.reveal, .projet-card-container');
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
       });
-    }
-
-    let mouse = { x: -1000, y: -1000 };
-    $(window).on('mousemove', function(e) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+    }, { threshold: 0.12, rootMargin: '0px 0px -24px 0px' });
+    revealTargets.forEach(element => {
+      element.classList.add('reveal');
+      revealObserver.observe(element);
     });
-
-    function animateParticles() {
-      ctx.clearRect(0, 0, width, height);
-      const isLight = $('body').hasClass('light-mode');
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        // Interaction avec la souris
-        const dx = mouse.x - p.x;
-        const dy = mouse.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120) {
-          p.x -= (dx / dist) * 1.5;
-          p.y -= (dy / dist) * 1.5;
-        }
-
-        // Dessin du point
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = isLight ? 'rgba(79, 70, 229, 0.45)' : 'rgba(99, 102, 241, 0.65)';
-        ctx.fill();
-
-        // Lignes de connexion entre particules proches
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const distance = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (distance < 110) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            const alpha = (1 - distance / 110) * (isLight ? 0.15 : 0.22);
-            ctx.strokeStyle = isLight ? `rgba(100, 116, 139, ${alpha})` : `rgba(129, 140, 248, ${alpha})`;
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-          }
-        }
-      }
-
-      requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
+  } else {
+    revealTargets.forEach(element => element.classList.add('is-visible'));
   }
 
-  // ----------------------------------------------------------
-  // 3. ANIMATION DU SPLASH SCREEN DE DÉPART
-  // ----------------------------------------------------------
-  $('#intro-bar').css('width', '100%');
-  
-  function dismissIntro() {
-    $('#intro-screen').fadeOut(450, function() {
-      $(this).remove();
-    });
+  // Constellations visibles en mouvement lent derrière le contenu.
+  const constellationCanvas = document.getElementById('ambient-canvas');
+  const constellationContext = constellationCanvas?.getContext('2d');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let constellationPoints = [];
+  let constellationWidth = 0;
+  let constellationHeight = 0;
+  let lastConstellationFrame = 0;
+  let constellationAnimationStarted = false;
+
+  function sizeConstellationCanvas() {
+    if (!constellationCanvas || !constellationContext) return;
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+    constellationWidth = window.innerWidth;
+    constellationHeight = window.innerHeight;
+    constellationCanvas.width = Math.round(constellationWidth * pixelRatio);
+    constellationCanvas.height = Math.round(constellationHeight * pixelRatio);
+    constellationContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    const count = Math.min(34, Math.max(14, Math.round(constellationWidth / 44)));
+    constellationPoints = Array.from({ length: count }, (_, index) => ({
+      x: Math.random() * constellationWidth,
+      y: Math.random() * constellationHeight,
+      vx: (Math.random() < 0.5 ? -1 : 1) * (0.28 + Math.random() * 0.42),
+      vy: (Math.random() < 0.5 ? -1 : 1) * (0.28 + Math.random() * 0.42),
+      radius: index % 6 === 0 ? 2.4 : 1.55
+    }));
+    if (reduceMotion) {
+      drawConstellations();
+    } else if (!constellationAnimationStarted) {
+      constellationAnimationStarted = true;
+      requestAnimationFrame(drawConstellations);
+    }
   }
 
-  const introTimer = setTimeout(dismissIntro, 2000);
-  $('#skip-intro').on('click', function(e) {
-    e.preventDefault();
-    clearTimeout(introTimer);
-    dismissIntro();
-  });
-
-  // ----------------------------------------------------------
-  // 4. MENU MOBILE BURGER
-  // ----------------------------------------------------------
-  $('#burger-btn').on('click', function() {
-    $('#mobile-menu').slideToggle(220);
-  });
-
-  $('.mobile-link').on('click', function() {
-    $('#mobile-menu').slideUp(200);
-  });
-
-  // ----------------------------------------------------------
-  // 5. TYPEWRITER SANS AUCUN ÉMOJI
-  // ----------------------------------------------------------
-  const phrases = [
-    "développeur de solutions logicielles.",
-    "étudiant en Licence 2 à l'IIT Grand-Bassam.",
-    "concepteur du système BiblioIIT.",
-    "spécialiste de la Data & du Web Scraping.",
-    "maîtrisant Python, SQL & le Génie Logiciel."
-  ];
-  let phraseIdx = 0;
-  let charIdx = 0;
-  let isDeleting = false;
-  const $typewriter = $('#typewriter-text');
-
-  function typeLoop() {
-    const currentPhrase = phrases[phraseIdx];
-    
-    if (isDeleting) {
-      $typewriter.text(currentPhrase.substring(0, charIdx - 1));
-      charIdx--;
-    } else {
-      $typewriter.text(currentPhrase.substring(0, charIdx + 1));
-      charIdx++;
+  function drawConstellations(timestamp = 0) {
+    if (!constellationContext) return;
+    if (!reduceMotion && timestamp - lastConstellationFrame < 25) {
+      requestAnimationFrame(drawConstellations);
+      return;
     }
-
-    let speed = isDeleting ? 25 : 65;
-
-    if (!isDeleting && charIdx === currentPhrase.length) {
-      speed = 1900;
-      isDeleting = true;
-    } else if (isDeleting && charIdx === 0) {
-      isDeleting = false;
-      phraseIdx = (phraseIdx + 1) % phrases.length;
-      speed = 350;
-    }
-
-    setTimeout(typeLoop, speed);
-  }
-  if ($typewriter.length) {
-    typeLoop();
-  }
-
-  // ----------------------------------------------------------
-  // 6. ANIMATION 3D TILT DES CARTES
-  // ----------------------------------------------------------
-  $('.tilt-card').each(function() {
-    const $card = $(this);
-    const $shine = $card.find('.tilt-shine');
-
-    $card.on('mousemove', function(e) {
-      const rect = this.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      const rotateX = ((y - centerY) / centerY) * -7;
-      const rotateY = ((x - centerX) / centerX) * 7;
-
-      $card.css('transform', `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.015)`);
-      $shine.css({
-        'opacity': '1',
-        'background': `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.25), transparent 60%)`
-      });
-    });
-
-    $card.on('mouseleave', function() {
-      $card.css('transform', 'rotateX(0deg) rotateY(0deg) scale(1)');
-      $shine.css('opacity', '0');
-    });
-  });
-
-  // ----------------------------------------------------------
-  // 7. BARRE DE SCROLL & SCROLLSPY
-  // ----------------------------------------------------------
-  $(window).on('scroll', function() {
-    const scrollTop = $(window).scrollTop();
-    const docHeight = $(document).height() - $(window).height();
-    const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    
-    $('#scroll-progress').css('width', scrollPercent + '%');
-
-    if (scrollTop > 350) {
-      $('#back-to-top').removeClass('opacity-0 pointer-events-none').addClass('opacity-100 pointer-events-auto');
-    } else {
-      $('#back-to-top').addClass('opacity-0 pointer-events-none').removeClass('opacity-100 pointer-events-auto');
-    }
-
-    $('section').each(function() {
-      const top = $(this).offset().top - 160;
-      const bottom = top + $(this).outerHeight();
-      const id = $(this).attr('id');
-
-      if (scrollTop >= top && scrollTop < bottom) {
-        $('.nav-pill-link').removeClass('active-link font-bold');
-        $('.nav-pill-link[href="#' + id + '"]').addClass('active-link font-bold');
+    lastConstellationFrame = timestamp;
+    constellationContext.clearRect(0, 0, constellationWidth, constellationHeight);
+    constellationPoints.forEach(point => {
+      if (!reduceMotion) {
+        point.x += point.vx;
+        point.y += point.vy;
+        if (point.x < 0 || point.x > constellationWidth) point.vx *= -1;
+        if (point.y < 0 || point.y > constellationHeight) point.vy *= -1;
+        point.x = Math.max(0, Math.min(constellationWidth, point.x));
+        point.y = Math.max(0, Math.min(constellationHeight, point.y));
       }
     });
+    for (let i = 0; i < constellationPoints.length; i++) {
+      const point = constellationPoints[i];
+      for (let j = i + 1; j < constellationPoints.length; j++) {
+        const next = constellationPoints[j];
+        const distance = Math.hypot(point.x - next.x, point.y - next.y);
+        if (distance > 176) continue;
+        const opacity = (1 - distance / 176) * 0.27;
+        constellationContext.beginPath();
+        constellationContext.moveTo(point.x, point.y);
+        constellationContext.lineTo(next.x, next.y);
+        constellationContext.strokeStyle = `rgba(198, 225, 164, ${opacity})`;
+        constellationContext.lineWidth = 0.9;
+        constellationContext.stroke();
+      }
+      constellationContext.beginPath();
+      constellationContext.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
+      constellationContext.fillStyle = 'rgba(215, 255, 121, 0.58)';
+      constellationContext.fill();
+    }
+    if (!reduceMotion) requestAnimationFrame(drawConstellations);
+  }
+
+  sizeConstellationCanvas();
+  window.addEventListener('resize', sizeConstellationCanvas, { passive: true });
+
+  // Une loupe textuelle colore les lettres proches du curseur, sans changer leur contenu.
+  const textLensEnabled = window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduceMotion;
+  function prepareTextLens(root = document.body) {
+    if (!textLensEnabled || !root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!node.nodeValue.trim() || !parent || parent.closest('script, style, svg, canvas, input, textarea, select, option, code, pre, [aria-hidden="true"], .cursor-halo, .text-glyph')) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    textNodes.forEach(node => {
+      const parent = node.parentElement;
+      const fragment = document.createDocumentFragment();
+      Array.from(node.nodeValue).forEach(character => {
+        const glyph = document.createElement('span');
+        glyph.className = 'text-glyph';
+        glyph.textContent = character;
+        fragment.appendChild(glyph);
+      });
+      node.replaceWith(fragment);
+      parent?.classList.add('text-lens-group');
+    });
+  }
+  prepareTextLens();
+
+  const cursorHalo = document.querySelector('.cursor-halo');
+  let activeLensGroup = null;
+  function clearTextLens() {
+    activeLensGroup?.querySelectorAll(':scope > .text-glyph.is-lens-lit').forEach(glyph => glyph.classList.remove('is-lens-lit'));
+    activeLensGroup = null;
+    cursorHalo?.classList.remove('is-text');
+  }
+  function updateTextLens(x, y) {
+    if (!textLensEnabled) return;
+    const target = document.elementFromPoint(x, y)?.closest('.text-glyph');
+    if (!target) {
+      clearTextLens();
+      return;
+    }
+    const group = target.parentElement;
+    if (activeLensGroup !== group) clearTextLens();
+    activeLensGroup = group;
+    group.querySelectorAll(':scope > .text-glyph').forEach(glyph => {
+      const bounds = glyph.getBoundingClientRect();
+      const distance = Math.hypot(bounds.left + bounds.width / 2 - x, bounds.top + bounds.height / 2 - y);
+      glyph.classList.toggle('is-lens-lit', distance < 68);
+    });
+    cursorHalo?.classList.add('is-text');
+  }
+
+  // Petit anneau de curseur sur ordinateur, désactivé pour le tactile.
+  if (cursorHalo && window.matchMedia('(hover: hover) and (pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let cursorFrame = 0;
+    window.addEventListener('pointermove', event => {
+      if (event.pointerType !== 'mouse') return;
+      if (cursorFrame) cancelAnimationFrame(cursorFrame);
+      cursorFrame = requestAnimationFrame(() => {
+        cursorHalo.style.setProperty('--cursor-x', `${event.clientX}px`);
+        cursorHalo.style.setProperty('--cursor-y', `${event.clientY}px`);
+        cursorHalo.classList.add('is-visible');
+        updateTextLens(event.clientX, event.clientY);
+      });
+    }, { passive: true });
+    document.addEventListener('pointerover', event => {
+      if (event.target.closest('a, button, .tech-item, .architecture-sheet')) cursorHalo.classList.add('is-active');
+    });
+    document.addEventListener('pointerout', event => {
+      if (event.target.closest('a, button, .tech-item, .architecture-sheet')) cursorHalo.classList.remove('is-active');
+    });
+    window.addEventListener('pointerout', event => {
+      if (!event.relatedTarget) {
+        clearTextLens();
+        cursorHalo.classList.remove('is-visible', 'is-active');
+      }
+    });
+    window.addEventListener('blur', clearTextLens);
+  }
+
+  // Inclinaison très légère des cartes projets, uniquement à la souris.
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('pointermove', event => {
+        const bounds = card.getBoundingClientRect();
+        const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+        const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+        card.style.setProperty('--card-rotate-x', `${(-y * 2).toFixed(2)}deg`);
+        card.style.setProperty('--card-rotate-y', `${(x * 2).toFixed(2)}deg`);
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.removeProperty('--card-rotate-x');
+        card.style.removeProperty('--card-rotate-y');
+      });
+    });
+  }
+
+  // Menu mobile accessible : état, focus et fermeture après navigation.
+  $('#burger-btn').on('click', function () {
+    const isOpen = $(this).attr('aria-expanded') === 'true';
+    $(this).attr('aria-expanded', String(!isOpen));
+    $(this).attr('aria-label', isOpen ? 'Ouvrir le menu' : 'Fermer le menu');
+    $mobileMenu.toggleClass('is-open', !isOpen).attr('aria-hidden', String(isOpen));
   });
 
-  $('#back-to-top').on('click', function() {
-    $('html, body').animate({ scrollTop: 0 }, 450);
+  $('.mobile-link').on('click', function () {
+    $mobileMenu.removeClass('is-open').attr('aria-hidden', 'true');
+    $('#burger-btn').attr('aria-expanded', 'false').attr('aria-label', 'Ouvrir le menu');
   });
 
-  // ----------------------------------------------------------
-  // 8. FILTRES DES PROJETS (Tous, Scraping, Génie Logiciel)
-  // ----------------------------------------------------------
-  $('.filter-btn').on('click', function() {
-    $('.filter-btn').removeClass('active-filter');
-    $(this).addClass('active-filter');
+  $(document).on('click', function (event) {
+    if (!event.target.closest('#mobile-menu, #burger-btn') && $mobileMenu.hasClass('is-open')) {
+      $mobileMenu.removeClass('is-open').attr('aria-hidden', 'true');
+      $('#burger-btn').attr('aria-expanded', 'false').attr('aria-label', 'Ouvrir le menu');
+    }
+  });
 
+  // Filtre les projets en limitant le mouvement à une courte transition.
+  $('.filter-btn').on('click', function () {
     const filter = $(this).data('filter');
+    $('.filter-btn').removeClass('active-filter').attr('aria-pressed', 'false');
+    $(this).addClass('active-filter').attr('aria-pressed', 'true');
 
-    if (filter === 'all') {
-      $('.projet-card-container').fadeIn(300);
-    } else {
-      $('.projet-card-container').each(function() {
-        if ($(this).data('categorie') === filter) {
-          $(this).fadeIn(300);
-        } else {
-          $(this).fadeOut(180);
-        }
-      });
-    }
+    $('.projet-card-container').each(function () {
+      const matches = filter === 'all' || $(this).data('categorie') === filter;
+      $(this).stop(true, true)[matches ? 'fadeIn' : 'fadeOut'](150);
+    });
   });
 
-  // ----------------------------------------------------------
-  // 9. MODALES DE DÉTAILS AVEC VRAIS REPOS GITHUB
-  // ----------------------------------------------------------
+  // Détails des projets.
   const projectDetails = {
     comparateur: {
-      title: "Comparateur de Prix Multi-Enseignes — Abidjan",
-      subtitle: "Optimisation Algorithmique & Data Analytics (Python MVC)",
-      badge: "Python • Architecture MVC & Data",
-      desc: "Application d'analyse comparative des offres de trois grandes enseignes à Abidjan (Marché Lagune, Baobab Shop, Comptoir Ivoire). Optimisation algorithmique avec indexation par dictionnaire en O(H + Q) pour un traitement instantané des catalogues, détection automatique des anomalies de prix (seuil 10%), et génération de rapports de synthèse exportables en Pandas, Excel, CSV et JSON.",
-      tree: [
-        "src/models/        -> Objets métier (Produit, Offre, Boutique)",
-        "src/services/      -> Comparateur, panier optimal & benchmark O(H+Q)",
-        "src/repositories/  -> Normalisation des sources CSV, JSON & Excel",
-        "output/            -> comparatif.csv, synthese.csv, performance.json"
-      ],
-      points: [
-        "Optimisation de complexité : passage d'une recherche naïve en O(H × Q) à O(H + Q).",
-        "Gestion automatique des ruptures de stock et calcul du panier global optimal.",
-        "Génération automatisée de rapports tabulaires et journalisation des écarts."
-      ],
-      repoUrl: "https://github.com/Yh290507/Analyse_comparative_Yh"
+      title: 'Comparateur de Prix Multi-Enseignes — Abidjan',
+      subtitle: 'Python · architecture MVC · analyse de données',
+      badge: 'Data et algorithmique',
+      desc: 'Application d’analyse comparative des offres de trois enseignes à Abidjan. Le projet indexe les catalogues pour comparer les offres, repérer les écarts de prix et produire des rapports.',
+      tree: ['src/models/        → Objets métier', 'src/services/      → Comparaison et panier', 'src/repositories/  → Lecture CSV, JSON et Excel', 'output/            → Rapports exportés'],
+      points: ['Comparaison des offres entre enseignes.', 'Détection des écarts de prix configurés dans le projet.', 'Exports tabulaires pour consultation et analyse.'],
+      repoUrl: 'https://github.com/Yh290507/Analyse_comparative_Yh'
     },
     biblio: {
-      title: "BiblioIIT — Système de Gestion de Bibliothèque Universitaire",
-      subtitle: "Clean Architecture Service-Repository & Base relationnelle SQLite",
-      badge: "Génie Logiciel • Clean Architecture & SQL",
-      desc: "Système d'Information et de Gestion de Bibliothèque (SIGB) développé pour l'Institut Ivoirien de Technologie (IIT). Valorisation d'un fonds de référence de 5 ouvrages majeurs de littérature africaine, persistance relationnelle SQLite avec intégrité des données, et moteur strict de règles de gestion.",
-      tree: [
-        "console.py         -> Interface terminal interactive et ergonomique",
-        "service.py         -> Couche contrôleur orchestrant les cas d'usage",
-        "regles.py          -> Règles métier (quotas 3 livres, durée 14j, blocage retards)",
-        "depot_sqlite.py    -> Persistance SQLite (biblio.db) avec intégrité référentielle",
-        "tests/             -> Suite de 19 tests unitaires automatisés"
-      ],
-      points: [
-        "Architecture en couches (Clean / Service-Repository) inspirée du patron MVC.",
-        "Règles réelles : durée de prêt à 14 jours, blocage automatique des retards.",
-        "19 tests unitaires automatisés garantissant la fiabilité complète du code."
-      ],
-      repoUrl: "https://github.com/Yh290507/yh_biblioIIT"
+      title: 'BiblioIIT — Gestion de bibliothèque universitaire',
+      subtitle: 'Python · services et dépôts · SQLite',
+      badge: 'Génie logiciel et SQL',
+      desc: 'Système de gestion de bibliothèque développé pour l’IIT. Le programme sépare les règles métier de l’accès aux données et utilise SQLite pour la persistance.',
+      tree: ['console.py         → Interface terminal', 'service.py         → Cas d’usage', 'regles.py          → Règles métier', 'depot_sqlite.py    → Accès SQLite'],
+      points: ['Architecture Service-Repository.', 'Règles de prêt et gestion des retards.', 'Le dépôt indique 19 tests unitaires.'],
+      repoUrl: 'https://github.com/Yh290507/yh_biblioIIT'
     },
     amazon: {
-      title: "Amazon Web Scraper — Extraction de Données",
-      subtitle: "Web Scraping, Parsing & Pipeline de Données Python",
-      badge: "Web Scraping & Data Extraction",
-      desc: "Robot d'extraction et de parsing de données développé en Python pour scraper automatiquement les catalogues de produits Amazon. Extraction ciblée des dénominations, des tarifs en temps réel, des évaluations utilisateurs et des caractéristiques techniques avec export propre vers CSV/JSON.",
-      tree: [
-        "scraper.py         -> Moteur principal d'extraction et requêtes HTTP",
-        "parser.py          -> Extraction des balises HTML, sélecteurs CSS & Regex",
-        "data_cleaner.py    -> Nettoyage, typage et normalisation des tarifs",
-        "output/            -> Données extraites prêtes pour l'analyse (CSV, JSON)"
-      ],
-      points: [
-        "Contournement des structures dynamiques et gestion des en-têtes User-Agent.",
-        "Nettoyage rigoureux des chaînes textuelles, prix et devises.",
-        "Pipeline automatisé d'export structuré pour exploitation Data Analytics."
-      ],
-      repoUrl: "https://github.com/Yh290507/YH_amazone_scraper"
+      title: 'Amazon Web Scraper',
+      subtitle: 'Python · extraction et préparation de données',
+      badge: 'Web scraping',
+      desc: 'Projet Python d’extraction et de parsing de pages produits. Les données récupérées sont nettoyées puis exportées dans des formats structurés.',
+      tree: ['scraper.py         → Requêtes et extraction', 'parser.py          → Lecture des pages', 'data_cleaner.py    → Nettoyage des valeurs', 'output/            → Exports CSV et JSON'],
+      points: ['Extraction des informations produit présentes dans la page.', 'Nettoyage et normalisation des valeurs.', 'Exports CSV et JSON.'],
+      repoUrl: 'https://github.com/Yh290507/YH_amazone_scraper'
     }
   };
 
-  $('.open-modal-btn').on('click', function(e) {
-    e.preventDefault();
-    const pid = $(this).data('project');
-    const data = projectDetails[pid];
+  $('.open-modal-btn').on('click', function () {
+    const data = projectDetails[$(this).data('project')];
     if (!data) return;
 
     $('#modal-title').text(data.title);
     $('#modal-subtitle').text(data.subtitle);
     $('#modal-badge').text(data.badge);
     $('#modal-desc').text(data.desc);
-    
-    let treeHtml = '';
-    data.tree.forEach(line => {
-      treeHtml += `<p class="font-mono text-[11px] text-muted">${line}</p>`;
-    });
-    $('#modal-tree').html(treeHtml);
-
-    let pointsHtml = '';
-    data.points.forEach(pt => {
-      pointsHtml += `<li class="text-xs text-muted leading-relaxed">${pt}</li>`;
-    });
-    $('#modal-points').html(pointsHtml);
-
+    $('#modal-tree').empty();
+    data.tree.forEach(line => $('<p>').addClass('font-mono text-[11px] text-muted').text(line).appendTo('#modal-tree'));
+    $('#modal-points').empty();
+    data.points.forEach(point => $('<li>').addClass('text-xs text-muted leading-relaxed').text(point).appendTo('#modal-points'));
     $('#modal-repo-link').attr('href', data.repoUrl);
-
+    prepareTextLens(document.getElementById('project-modal'));
     $('#project-modal').removeClass('hidden').addClass('flex');
     $('body').addClass('overflow-hidden');
+    $('#close-modal-btn').trigger('focus');
   });
 
   function closeModal() {
     $('#project-modal').addClass('hidden').removeClass('flex');
     $('body').removeClass('overflow-hidden');
   }
-
-  $('#close-modal-btn, #modal-backdrop-close').on('click', closeModal);
-
-  $(document).on('keydown', function(e) {
-    if (e.key === 'Escape') closeModal();
+  $('#close-modal-btn, #close-modal-footer, #modal-backdrop-close').on('click', closeModal);
+  $(document).on('keydown', function (event) {
+    if (event.key === 'Escape') {
+      closeModal();
+      $mobileMenu.removeClass('is-open').attr('aria-hidden', 'true');
+      $('#burger-btn').attr('aria-expanded', 'false').attr('aria-label', 'Ouvrir le menu');
+    }
   });
 
-  // ----------------------------------------------------------
-  // 10. COPIE DE L'EMAIL
-  // ----------------------------------------------------------
-  $('#copy-email-btn').on('click', function() {
+  // Copie de l’adresse de contact.
+  $('#copy-email-btn').on('click', async function () {
     const email = $('#my-email').text().trim();
-    navigator.clipboard.writeText(email).then(() => {
-      const $btn = $('#copy-email-btn');
-      const orig = $btn.text();
-      $btn.text('Copié !').addClass('bg-indigo-600 text-white');
-      setTimeout(() => {
-        $btn.text(orig).removeClass('bg-indigo-600 text-white');
-      }, 2000);
+    const $button = $(this);
+    try {
+      await navigator.clipboard.writeText(email);
+      $button.text('Copié');
+      prepareTextLens($button[0]);
+    } catch {
+      window.location.href = `mailto:${email}`;
+    }
+    window.setTimeout(() => {
+      $button.text('Copier');
+      prepareTextLens($button[0]);
+    }, 1800);
+  });
+
+  // Prépare un courriel dans l’application de messagerie du visiteur.
+  $('#contact-form').on('submit', function (event) {
+    event.preventDefault();
+    const name = $('#name').val().trim();
+    const replyTo = $('#email').val().trim();
+    const subject = $('#subject').val().trim() || `Message de ${name}`;
+    const message = $('#message').val().trim();
+    const body = `${message}\n\n— ${name}\n${replyTo}`;
+    const mailto = `mailto:yogne.sihouli@iit.ci?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    $('#form-success').stop(true, true).slideDown(180);
+    window.location.href = mailto;
+  });
+
+  // Liens de navigation et bouton de retour en haut.
+  $(window).on('scroll', function () {
+    const scrollTop = $(window).scrollTop();
+    $('#back-to-top').toggleClass('opacity-0 pointer-events-none', scrollTop < 450)
+      .toggleClass('opacity-100 pointer-events-auto', scrollTop >= 450);
+
+    let activeId = 'accueil';
+    $sections.each(function () {
+      if ($(this).offset().top <= scrollTop + 150) activeId = this.id;
     });
+    $navLinks.removeClass('active-link');
+    $navLinks.filter(`[href="#${activeId}"]`).addClass('active-link');
+
   });
 
-  // ----------------------------------------------------------
-  // 11. FORMULAIRE DE CONTACT
-  // ----------------------------------------------------------
-  $('#contact-form').on('submit', function(e) {
-    e.preventDefault();
-    $('#form-success').hide().slideDown(350);
-    $(this)[0].reset();
-    setTimeout(function() {
-      $('#form-success').slideUp(400);
-    }, 6000);
+  $('#back-to-top').on('click', function () {
+    $('html, body').animate({ scrollTop: 0 }, 260);
   });
 
+  $(window).trigger('scroll');
 });
