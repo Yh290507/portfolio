@@ -27,6 +27,10 @@ Les icônes de technologies sont fournies par [Devicon](https://devicon.dev/).
 
 Le site est réalisé en HTML, CSS et JavaScript. Tailwind CSS est chargé depuis son CDN et jQuery gère certaines interactions. Une trame animée en canvas, les révélations au défilement et la loupe de texte sont réalisées en JavaScript et CSS. Les effets respectent le réglage de réduction des animations du navigateur. Le portfolio est statique et peut être hébergé sur GitHub Pages.
 
+## Vidéo explicative du portfolio
+
+[Voir la vidéo de présentation et d’explication du portfolio](https://www.loom.com/share/935c01332efd401e9c461b861e5672fb).
+
 ## Structure du dépôt
 
 ```text
