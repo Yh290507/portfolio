@@ -1,0 +1,146 @@
+/* ==========================================================
+   PORTFOLIO DE JEAN-HOREB SIHOULI — STYLES & THÈMES
+   Double thème : Sombre immersif (par défaut) & Clair épuré
+   Aucun émoji — 100% SVG & Typographie Haute Couture
+   ========================================================== */
+
+/* Polices de caractère */
+.font-instrument {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+}
+.font-sans {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ----------------------------------------------------------
+   THÈME SOMBRE (Par défaut)
+   ---------------------------------------------------------- */
+body.dark-mode {
+  background-color: #06080f;
+  color: #f1f5f9;
+}
+
+body.dark-mode .floating-nav {
+  background: rgba(10, 14, 26, 0.82);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .case-card {
+  background: rgba(13, 19, 36, 0.75);
+  backdrop-filter: blur(14px);
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 25px -4px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .case-card:hover {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.2);
+}
+
+body.dark-mode .surface-card {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .text-main {
+  color: #ffffff;
+}
+body.dark-mode .text-muted {
+  color: #94a3b8;
+}
+body.dark-mode .pill-bg {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+/* ----------------------------------------------------------
+   THÈME CLAIR (Optionnel via le bouton Switch)
+   ---------------------------------------------------------- */
+body.light-mode {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+body.light-mode .floating-nav {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(226, 232, 240, 0.9);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .case-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  border-color: rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .case-card:hover {
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 20px 35px -10px rgba(249, 115, 22, 0.12);
+}
+
+body.light-mode .surface-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+body.light-mode .text-main {
+  color: #0f172a;
+}
+body.light-mode .text-muted {
+  color: #64748b;
+}
+body.light-mode .pill-bg {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+/* ----------------------------------------------------------
+   ANIMATIONS & MOTION UI
+   ---------------------------------------------------------- */
+.tilt-card-container {
+  perspective: 1200px;
+}
+
+.tilt-card {
+  transition: transform 0.12s ease-out, box-shadow 0.25s ease;
+  transform-style: preserve-3d;
+}
+
+.tilt-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+body.dark-mode .tilt-shine {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.18), transparent 60%);
+}
+body.light-mode .tilt-shine {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.5), transparent 60%);
+}
+
+.arrow-slide {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.group:hover .arrow-slide {
+  transform: translate(3px, -3px);
+}
+
+/* Canvas des particules animées en arrière-plan */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}

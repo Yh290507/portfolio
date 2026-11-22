@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jean-Horeb Sihouli — Portfolio Développeur</title>
+  
+  <!-- Tailwind CSS v4 via CDN officiel (Séance 5 IIT) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  
+  <!-- jQuery (3.7.1) pour les interactions et animations (noté sur 3 pts) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <!-- Devicon pour les logos officiels (Python, Java, SQL, JS, etc.) -->
+  <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+
+  <!-- Polices Éditoriales : Instrument Serif (Italique d'artiste) & Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Feuilles de style personnalisées (Arborescence modulaire VS Code) -->
+  <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body class="dark-mode antialiased selection:bg-indigo-500 selection:text-white relative min-h-screen transition-colors duration-300">
+
+  <!-- ========================================================== -->
+  <!-- 0. PARTICULES ANIMÉES EN ARRIÈRE-PLAN (CANVAS INTERACTIF)  -->
+  <!-- ========================================================== -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Halos d'ambiance pastel réactifs -->
+  <div class="fixed top-10 right-10 w-96 h-96 bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none animate-warm-glow z-0"></div>
+  <div class="fixed bottom-1/4 left-10 w-96 h-96 bg-cyan-600/15 rounded-full blur-[140px] pointer-events-none animate-warm-glow z-0"></div>
+
+  <!-- Barre de progression de scroll en haut -->
+  <div id="scroll-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 via-cyan-400 to-indigo-600 z-50 w-0 transition-all duration-75"></div>
+
+  <!-- ========================================================== -->
+  <!-- 1. SPLASH SCREEN D'INTRODUCTION SANS ÉMOJI                 -->
+  <!-- ========================================================== -->
+  <div id="intro-screen" class="fixed inset-0 z-50 surface-card backdrop-blur-md flex flex-col items-center justify-center p-6 text-center select-none transition-opacity duration-500">
+    <div class="relative max-w-lg space-y-5">
+      
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold pill-bg border shadow-xs">
+        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+        <span>Institut Ivoirien de Technologie</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-main tracking-tight leading-tight">
+        Bienvenue sur le portfolio de <br>
+        <span class="font-instrument text-5xl sm:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400">
+          Jean-Horeb Sihouli
+        </span>
+      </h1>
+      
+      <p class="text-muted text-sm font-medium">
+        Étudiant en Licence 2 Informatique & Développeur Logiciel
+      </p>
+
+      <div class="w-48 sm:w-60 h-1.5 bg-slate-800 rounded-full overflow-hidden mx-auto mt-4 border border-slate-700">
+        <div id="intro-bar" class="h-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-purple-500 rounded-full w-0 transition-all duration-1000"></div>
+      </div>
+
+      <button id="skip-intro" class="text-xs text-muted hover:text-indigo-400 transition-colors pt-2 block mx-auto underline cursor-pointer">
+        Accéder au portfolio →
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================== -->
+  <!-- 2. NAVIGATION FLOTTANTE EN PILULE (Avec sélecteur de thème)-->
+  <!-- ========================================================== -->
+  <header class="fixed top-5 left-0 right-0 z-40 px-4 flex justify-center">
+    
+    <div class="floating-nav rounded-full px-5 py-2.5 flex items-center justify-between w-full max-w-4xl border transition-colors">
+      
+      <!-- Logo Jean-Horeb -->
+      <a href="#accueil" class="flex items-center gap-2.5 group">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-bold text-white shadow-xs text-xs group-hover:scale-105 transition-transform">
+          JH
+        </div>
+        <span class="font-bold text-main tracking-tight text-sm hidden sm:inline group-hover:text-indigo-400 transition-colors">
+          Jean-Horeb <span class="font-instrument text-base text-indigo-400">Sihouli</span>
+        </span>
+      </a>
+
+      <!-- Liens de navigation centrés -->
+      <nav class="hidden md:flex items-center gap-1 text-xs font-semibold text-muted">
+        <a href="#accueil" class="nav-pill-link px-3.5 py-1.5 rounded-full hover:text-indigo-400 transition-all active-link font-bold">Accueil</a>
+        <a href="#projets" class="nav-pill-link px-3.5 py-1.5 rounded-full hover:text-indigo-400 transition-all">Projets</a>
+        <a href="#cv" class="nav-pill-link px-3.5 py-1.5 rounded-full hover:text-indigo-400 transition-all">Parcours & CV</a>
+        <a href="#contact" class="nav-pill-link px-3.5 py-1.5 rounded-full hover:text-indigo-400 transition-all">Contact</a>
+      </nav>
+
+      <!-- Actions : Sélecteur de Thème (Sombre / Clair) & Contact -->
+      <div class="flex items-center gap-2.5">
+        
+        <!-- Bouton Bascule Thème Sombre / Clair -->
+        <button id="theme-toggle-btn" aria-label="Changer de thème" class="w-8 h-8 rounded-full pill-bg border flex items-center justify-center text-muted hover:text-main transition-all cursor-pointer">
+          <!-- Icône Lune (affichée en mode sombre) -->
+          <svg id="theme-icon-moon" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+          <!-- Icône Soleil (affichée en mode clair) -->
+          <svg id="theme-icon-sun" class="w-4 h-4 text-amber-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+        </button>
+
+        <span class="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Recherche de stage
+        </span>
+
+        <a href="#contact" class="px-4 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all shadow-xs hover:scale-105 active:scale-95">
+          Discuter →
+        </a>
+
+        <!-- Bouton Burger Mobile -->
+        <button id="burger-btn" aria-label="Menu" class="md:hidden w-8 h-8 rounded-full pill-bg flex flex-col justify-center items-center gap-1 focus:outline-none border">
+          <span class="w-4 h-0.5 bg-current"></span>
+          <span class="w-4 h-0.5 bg-current"></span>
+          <span class="w-4 h-0.5 bg-current"></span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Menu Déroulant Mobile -->
+    <div id="mobile-menu" class="hidden md:hidden fixed top-20 left-4 right-4 floating-nav rounded-2xl p-5 space-y-3 shadow-2xl border">
+      <a href="#accueil" class="mobile-link block px-3 py-2 rounded-xl text-sm font-semibold text-main hover:bg-indigo-500/10 hover:text-indigo-400">Accueil</a>
+      <a href="#projets" class="mobile-link block px-3 py-2 rounded-xl text-sm font-semibold text-main hover:bg-indigo-500/10 hover:text-indigo-400">Projets</a>
+      <a href="#cv" class="mobile-link block px-3 py-2 rounded-xl text-sm font-semibold text-main hover:bg-indigo-500/10 hover:text-indigo-400">Parcours & CV</a>
+      <a href="#contact" class="mobile-link block px-3 py-2 rounded-xl text-sm font-semibold text-main hover:bg-indigo-500/10 hover:text-indigo-400">Contact</a>
+      <div class="pt-2 border-t border-slate-700/50">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Disponible pour un stage
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================== -->
+  <!-- MAIN CONTENT                                               -->
+  <!-- ========================================================== -->
+  <main class="relative z-10 pt-28 sm:pt-36">
+
+    <!-- ========================================================== -->
+    <!-- SECTION 1 : HERO ÉDITORIAL ÉPURÉ & AÉRÉ (Sans image IA)   -->
+    <!-- ========================================================== -->
+    <section id="accueil" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 text-center">
+      <div class="space-y-7 max-w-3xl mx-auto">
+        
+        <!-- Tag Localisation & École -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold pill-bg border shadow-xs">
+          <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          <span>Abidjan / Grand-Bassam • <strong>Institut Ivoirien de Technologie (IIT)</strong></span>
+        </div>
+
+        <!-- Grand Titre Éditorial Haute Couture -->
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-main tracking-tight leading-[1.12]">
+          Concepteur de solutions logicielles <br class="hidden sm:inline">
+          & d'architectures web <span class="font-instrument text-5xl sm:text-7xl lg:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400">à fort impact</span>.
+        </h1>
+
+        <!-- Typewriter sous-titre dynamique -->
+        <div class="text-base sm:text-lg text-muted font-medium">
+          Je suis Jean-Horeb Sihouli, <span id="typewriter-text" class="text-indigo-400 font-bold"></span>
+          <span class="w-0.5 h-5 bg-indigo-400 animate-pulse inline-block align-middle ml-0.5"></span>
+        </div>
+
+        <!-- Pitch académique et professionnel -->
+        <p class="text-muted text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+          Étudiant en <strong>2ème année de Licence à l'Institut Ivoirien de Technologie</strong>, je conçois des architectures logicielles découplées (Clean Architecture, MVC), des pipelines de Web Scraping automatisés et des bases de données relationnelles (SQL, SQLite, SQL Server). Actuellement à la recherche d'un <strong>stage pratique en entreprise</strong>.
+        </p>
+
+        <!-- Boutons d'action -->
+        <div class="flex flex-wrap items-center justify-center gap-3.5 pt-4">
+          
+          <a href="#projets" class="group px-7 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-wide shadow-lg shadow-indigo-600/25 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer">
+            <span>Explorer mes projets</span>
+            <span class="arrow-slide text-sm">→</span>
+          </a>
+
+          <a href="assets/docs/cv.pdf" download="CV_Jean_Horeb_Sihouli.pdf" class="px-6 py-3.5 rounded-full pill-bg border font-semibold text-xs shadow-xs transition-all duration-300 hover:scale-105 flex items-center gap-2 cursor-pointer text-main hover:border-indigo-400">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span>Télécharger mon CV (PDF)</span>
+          </a>
+
+          <a href="#contact" class="px-5 py-3.5 rounded-full text-muted hover:text-indigo-400 font-semibold text-xs transition-colors cursor-pointer">
+            Me contacter →
+          </a>
+
+        </div>
+
+      </div>
+
+      <!-- 3 Indicateurs clés d'impact -->
+      <div class="grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl mx-auto mt-14">
+        <div class="p-5 rounded-2xl surface-card border shadow-sm">
+          <span class="block text-2xl sm:text-4xl font-extrabold text-main">2 ans</span>
+          <span class="text-xs text-muted mt-1 block">Licence à l'IIT</span>
+        </div>
+        <div class="p-5 rounded-2xl surface-card border shadow-sm">
+          <span class="block text-2xl sm:text-4xl font-extrabold text-indigo-400">8+</span>
+          <span class="text-xs text-muted mt-1 block">Technologies maîtrisées</span>
+        </div>
+        <div class="p-5 rounded-2xl surface-card border shadow-sm">
+          <span class="block text-2xl sm:text-4xl font-extrabold text-cyan-400">3</span>
+          <span class="text-xs text-muted mt-1 block">Projets open source</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- SECTION 2 : PROJETS SÉLECTIONNÉS (Avec YH_amazone_scraper) -->
+    <!-- ========================================================== -->
+    <section id="projets" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-slate-800/60">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div>
+          <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400 block mb-2">Réalisations & Code source</span>
+          <h2 class="text-3xl sm:text-5xl font-extrabold text-main tracking-tight">
+            Projets sélectionnés
+          </h2>
+          <p class="text-muted text-sm mt-2 max-w-xl">
+            Cliquez sur <strong>« Consulter le dépôt GitHub → »</strong> pour accéder directement au code, aux tests et à l'architecture de chaque projet.
+          </p>
+        </div>
+
+        <!-- Filtres par catégorie -->
+        <div class="flex flex-wrap gap-2" id="project-filters">
+          <button data-filter="all" class="filter-btn active-filter px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer">
+            Tous les projets
+          </button>
+          <button data-filter="data" class="filter-btn px-4 py-2 rounded-full text-xs font-semibold pill-bg border transition-all cursor-pointer">
+            Data & Comparateur
+          </button>
+          <button data-filter="logiciel" class="filter-btn px-4 py-2 rounded-full text-xs font-semibold pill-bg border transition-all cursor-pointer">
+            Génie Logiciel & SQL
+          </button>
+          <button data-filter="scraping" class="filter-btn px-4 py-2 rounded-full text-xs font-semibold pill-bg border transition-all cursor-pointer">
+            Web Scraping
+          </button>
+        </div>
+      </div>
+
+      <!-- Grille responsive : 1 col mobile, 2 cols tablette, 3 cols ordinateur -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7" id="projects-grid">
+        
+        <!-- ========================================== -->
+        <!-- PROJET 1 : COMPARATEUR DE PRIX (ABIDJAN)   -->
+        <!-- ========================================== -->
+        <div class="projet-card-container tilt-card-container" data-categorie="data">
+          <article class="tilt-card case-card rounded-3xl p-7 flex flex-col justify-between h-full relative group cursor-pointer border">
+            <div class="tilt-shine"></div>
+
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5">
+                  <i class="devicon-python-plain colored"></i>
+                  Data & Algorithmique
+                </span>
+                <span class="text-xs font-mono text-muted">2026</span>
+              </div>
+
+              <div>
+                <h3 class="text-2xl font-bold text-main group-hover:text-indigo-400 transition-colors">
+                  Comparateur de Prix Multi-Enseignes
+                </h3>
+                <p class="font-instrument text-lg text-muted mt-0.5">
+                  Marché Lagune, Baobab Shop & Comptoir Ivoire
+                </p>
+              </div>
+
+              <p class="text-muted text-xs sm:text-sm leading-relaxed">
+                Application Python en architecture <strong>MVC</strong>. Optimisation algorithmique avec indexation par dictionnaire en <strong>O(H + Q)</strong>, détection des anomalies de prix (&ge; 10%) et exports de rapports.
+              </p>
+
+              <div class="flex flex-wrap gap-1.5 pt-2 font-mono text-[11px]">
+                <span class="px-2.5 py-1 rounded-md pill-bg border">Python 3</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">Pandas</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">Pattern MVC</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">OpenPyXL</span>
+              </div>
+            </div>
+
+            <!-- Liens directs GitHub -->
+            <div class="pt-6 mt-6 border-t border-slate-700/40 flex items-center justify-between">
+              <button data-project="comparateur" class="open-modal-btn text-indigo-400 hover:text-indigo-300 text-xs font-bold flex items-center gap-1.5 group-hover:underline cursor-pointer">
+                <span>Détails & Code</span>
+                <span class="arrow-slide">→</span>
+              </button>
+              <a href="https://github.com/Yh290507/Analyse_comparative_Yh" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-full pill-bg hover:bg-indigo-600 hover:text-white text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border">
+                <i class="devicon-github-original"></i>
+                <span>Dépôt GitHub →</span>
+              </a>
+            </div>
+
+          </article>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PROJET 2 : BIBLIOIIT (LITTÉRATURE AFRICAINE)-->
+        <!-- ========================================== -->
+        <div class="projet-card-container tilt-card-container" data-categorie="logiciel">
+          <article class="tilt-card case-card rounded-3xl p-7 flex flex-col justify-between h-full relative group cursor-pointer border">
+            <div class="tilt-shine"></div>
+
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center gap-1.5">
+                  <i class="devicon-python-plain colored"></i>
+                  Génie Logiciel & SQL
+                </span>
+                <span class="text-xs font-mono text-muted">Projet IIT</span>
+              </div>
+
+              <div>
+                <h3 class="text-2xl font-bold text-main group-hover:text-indigo-400 transition-colors">
+                  BiblioIIT — Bibliothèque Universitaire
+                </h3>
+                <p class="font-instrument text-lg text-muted mt-0.5">
+                  Clean Architecture & Fonds de Littérature Africaine
+                </p>
+              </div>
+
+              <p class="text-muted text-xs sm:text-sm leading-relaxed">
+                Système d'Information et de Gestion de Bibliothèque pour l'IIT. Architecture découplée <strong>Service-Repository</strong>, persistance <strong>SQLite</strong>, 19 tests automatisés et moteur strict de règles de gestion.
+              </p>
+
+              <div class="flex flex-wrap gap-1.5 pt-2 font-mono text-[11px]">
+                <span class="px-2.5 py-1 rounded-md pill-bg border">Python</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">SQLite</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">Clean Arch</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">19 Tests</span>
+              </div>
+            </div>
+
+            <div class="pt-6 mt-6 border-t border-slate-700/40 flex items-center justify-between">
+              <button data-project="biblio" class="open-modal-btn text-indigo-400 hover:text-indigo-300 text-xs font-bold flex items-center gap-1.5 group-hover:underline cursor-pointer">
+                <span>Détails & Code</span>
+                <span class="arrow-slide">→</span>
+              </button>
+              <a href="https://github.com/Yh290507/yh_biblioIIT" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-full pill-bg hover:bg-indigo-600 hover:text-white text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border">
+                <i class="devicon-github-original"></i>
+                <span>Dépôt GitHub →</span>
+              </a>
+            </div>
+
+          </article>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PROJET 3 : YH_AMAZONE_SCRAPER (AMAZON DATA)-->
+        <!-- ========================================== -->
+        <div class="projet-card-container tilt-card-container" data-categorie="scraping">
+          <article class="tilt-card case-card rounded-3xl p-7 flex flex-col justify-between h-full relative group cursor-pointer border">
+            <div class="tilt-shine"></div>
+
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center gap-1.5">
+                  <i class="devicon-python-plain colored"></i>
+                  Web Scraping
+                </span>
+                <span class="text-xs font-mono text-cyan-400 font-semibold">GitHub Repo</span>
+              </div>
+
+              <div>
+                <h3 class="text-2xl font-bold text-main group-hover:text-cyan-400 transition-colors">
+                  Amazon Web Scraper
+                </h3>
+                <p class="font-instrument text-lg text-muted mt-0.5">
+                  Extraction Automatisée & Parsing de Données E-Commerce
+                </p>
+              </div>
+
+              <p class="text-muted text-xs sm:text-sm leading-relaxed">
+                Robot d'extraction développé en Python pour collecter, nettoyer et structurer les catalogues de produits Amazon (titres, tarifs en direct, évaluations et avis clients) avec export automatique.
+              </p>
+
+              <div class="flex flex-wrap gap-1.5 pt-2 font-mono text-[11px]">
+                <span class="px-2.5 py-1 rounded-md pill-bg border">Python</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">BeautifulSoup</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">Requests</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">CSV / JSON</span>
+              </div>
+            </div>
+
+            <div class="pt-6 mt-6 border-t border-slate-700/40 flex items-center justify-between">
+              <button data-project="amazon" class="open-modal-btn text-cyan-400 hover:text-cyan-300 text-xs font-bold flex items-center gap-1.5 group-hover:underline cursor-pointer">
+                <span>Détails & Code</span>
+                <span class="arrow-slide">→</span>
+              </button>
+              <a href="https://github.com/Yh290507/YH_amazone_scraper" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-full pill-bg hover:bg-cyan-600 hover:text-white text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border">
+                <i class="devicon-github-original"></i>
+                <span>Dépôt GitHub →</span>
+              </a>
+            </div>
+
+          </article>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- SECTION 3 : PARCOURS ACADÉMIQUE IIT & COMPÉTENCES (+ SQL)  -->
+    <!-- ========================================================== -->
+    <section id="cv" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-slate-800/60">
+      
+      <div class="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400 block">Formation & Compétences</span>
+        <h2 class="text-3xl sm:text-5xl font-extrabold text-main tracking-tight">
+          Mon Parcours & Mon CV
+        </h2>
+        <p class="text-muted text-sm">
+          2 années d'ingénierie logicielle à l'Institut Ivoirien de Technologie et maîtrise des technologies fondamentales.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Colonne Gauche : Formation & Téléchargement CV -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <!-- Carte Formation IIT -->
+          <div class="case-card rounded-3xl p-7 space-y-6 border">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg border border-indigo-500/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-main text-base">Formation Universitaire</h3>
+                <p class="text-xs text-indigo-400 font-mono font-semibold">Institut Ivoirien de Technologie (IIT)</p>
+              </div>
+            </div>
+
+            <!-- Timeline IIT : 2 années de Licence -->
+            <div class="relative pl-6 border-l-2 border-indigo-500/40 space-y-6 pt-1">
+              
+              <!-- Année 2 -->
+              <div class="relative">
+                <span class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-indigo-500 ring-4 ring-slate-900"></span>
+                <span class="text-xs font-mono text-indigo-400 block font-bold">2025 - 2026 (En cours)</span>
+                <h4 class="text-sm font-bold text-main">Licence 2 — Génie Logiciel & Informatique</h4>
+                <p class="text-xs text-muted mt-0.5">IIT (Grand-Bassam)</p>
+                <p class="text-xs text-muted mt-1.5 leading-relaxed">
+                  Conception logicielle avancée (MVC, Clean Architecture), persistance SQL (SQLite, SQL Server), suites de tests unitaires, algorithmique et bases de données.
+                </p>
+              </div>
+
+              <!-- Année 1 -->
+              <div class="relative pt-2">
+                <span class="absolute -left-[31px] top-3 w-3.5 h-3.5 rounded-full bg-slate-600 ring-4 ring-slate-900"></span>
+                <span class="text-xs font-mono text-muted block font-bold">2024 - 2025</span>
+                <h4 class="text-sm font-bold text-main">Licence 1 — Tronc Commun Informatique</h4>
+                <p class="text-xs text-muted mt-0.5">IIT (Grand-Bassam)</p>
+                <p class="text-xs text-muted mt-1.5 leading-relaxed">
+                  Algorithmique en langage C et Python, structures de données, architecture des machines et technologies du web (HTML5, CSS3, JavaScript).
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Carte Téléchargement du CV officiel -->
+          <div class="rounded-3xl surface-card border p-7 space-y-4 shadow-sm relative overflow-hidden">
+            
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono uppercase tracking-wider text-indigo-400 font-bold">Curriculum Vitae</span>
+              <span class="text-xs px-2.5 py-0.5 rounded-full pill-bg font-mono font-semibold border">Format PDF A4</span>
+            </div>
+
+            <h3 class="font-instrument text-3xl text-main">Mon CV Professionnel</h3>
+            <p class="text-muted text-xs leading-relaxed">
+              Consultez mon CV complet détaillant l'ensemble de mes compétences, projets universitaires à l'IIT et coordonnées.
+            </p>
+
+            <div class="pt-2">
+              <a href="assets/docs/cv.pdf" download="CV_Jean_Horeb_Sihouli.pdf" id="download-cv-btn" class="w-full py-3.5 px-5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-wide shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Télécharger le CV officiel (PDF)</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Colonne Droite : Les 8 langages + SQL & SQL Server avec vrais logos -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="flex items-center justify-between pb-1">
+            <div>
+              <h3 class="text-lg font-bold text-main">Technologies étudiées à l'IIT</h3>
+              <p class="text-xs text-muted mt-0.5">Langages et outils validés en cours et projets pratiques</p>
+            </div>
+            <span class="text-xs text-indigo-400 font-mono font-bold">8 technologies clés</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+            
+            <!-- Python -->
+            <div class="case-card rounded-2xl p-4 text-center group hover:border-amber-500/40 border">
+              <div class="w-12 h-12 mx-auto rounded-xl pill-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs">
+                <i class="devicon-python-plain colored text-3xl"></i>
+              </div>
+              <h4 class="text-xs font-bold text-main">Python</h4>
+              <p class="text-[11px] text-muted font-mono mt-0.5">MVC & Data</p>
+            </div>
+
+            <!-- SQL & SQL Server (demandé par Jean-Horeb) -->
+            <div class="case-card rounded-2xl p-4 text-center group hover:border-red-500/40 border">
+              <div class="w-12 h-12 mx-auto rounded-xl pill-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs">
+                <i class="devicon-microsoftsqlserver-plain colored text-3xl"></i>
+              </div>
+              <h4 class="text-xs font-bold text-main">SQL & SQL Server</h4>
+              <p class="text-[11px] text-muted font-mono mt-0.5">Bases de Données</p>
+            </div>
+
+            <!-- Java -->
+            <div class="case-card rounded-2xl p-4 text-center group hover:border-red-500/40 border">
+              <div class="w-12 h-12 mx-auto rounded-xl pill-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs">
+                <i class="devicon-java-plain colored text-3xl"></i>
+              </div>
+              <h4 class="text-xs font-bold text-main">Java</h4>
+              <p class="text-[11px] text-muted font-mono mt-0.5">POO & Logiciel</p>
+            </div>
+
+            <!-- JavaScript -->
+            <div class="case-card rounded-2xl p-4 text-center group hover:border-yellow-500/40 border">
+              <div class="w-12 h-12 mx-auto rounded-xl pill-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs">
+                <i class="devicon-javascript-plain colored text-3xl"></i>
+              </div>
+              <h4 class="text-xs font-bold text-main">JavaScript</h4>
+              <p class="text-[11px] text-muted font-mono mt-0.5">Web Interactif</p>
+            </div>
+
+            <!-- HTML5 -->
+            <div class="case-card rounded-2xl p-4 text-center group hover:border-orange-500/40 border">
+              <div class="w-12 h-12 mx-auto rounded-xl pill-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs">
+                <i class="devicon-html5-plain colored text-3xl"></i>
+              </div>
+              <h4 class="text-xs font-bold text-main">HTML5</h4>
+              <p class="text-[11px] text-muted font-mono mt-0.5">Sémantique</p>
+            </div>
+
+            <!-- CSS3 / Tailwind -->
+            <div class="case-card rounded-2xl p-4 text-center group hover:border-blue-500/40 border">
+              <div class="w-12 h-12 mx-auto rounded-xl pill-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs">
+                <i class="devicon-css3-plain colored text-3xl"></i>
+              </div>
+              <h4 class="text-xs font-bold text-main">CSS3 / Tailwind</h4>
+              <p class="text-[11px] text-muted font-mono mt-0.5">Responsive</p>
+            </div>
+
+            <!-- Langage C -->
+            <div class="case-card rounded-2xl p-4 text-center group hover:border-indigo-500/40 border">
+              <div class="w-12 h-12 mx-auto rounded-xl pill-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs">
+                <i class="devicon-c-plain colored text-3xl"></i>
+              </div>
+              <h4 class="text-xs font-bold text-main">Langage C</h4>
+              <p class="text-[11px] text-muted font-mono mt-0.5">Système & Pointers</p>
+            </div>
+
+            <!-- Intelligence Artificielle (IA) -->
+            <div class="case-card rounded-2xl p-4 text-center group hover:border-purple-500/40 border">
+              <div class="w-12 h-12 mx-auto rounded-xl pill-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs text-purple-400">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+              </div>
+              <h4 class="text-xs font-bold text-main">I.A. & Data</h4>
+              <p class="text-[11px] text-muted font-mono mt-0.5">Machine Learning</p>
+            </div>
+
+          </div>
+
+          <!-- Encadré Rigueur Technique -->
+          <div class="p-6 rounded-3xl surface-card border text-xs text-muted space-y-2 shadow-xs">
+            <div class="flex items-center gap-2 text-main font-bold">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span>Méthodologie & Qualité logicielle</span>
+            </div>
+            <p class="leading-relaxed">
+              Patrons de conception (<strong>MVC</strong>, <strong>Clean Architecture / Service-Repository</strong>), tests unitaires automatisés (<strong>Pytest</strong>), persistance relationnelle (<strong>SQLite, SQL Server</strong>), gestion de version avec <strong>Git & GitHub</strong>.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- SECTION 4 : GRAND BLOC CONTACT (@lusi.uxui Signature CTA)  -->
+    <!-- ========================================================== -->
+    <section id="contact" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-slate-800/60">
+      
+      <div class="case-card rounded-3xl p-8 sm:p-12 border relative overflow-hidden">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          
+          <!-- Colonne Gauche : Coordonnées -->
+          <div class="lg:col-span-5 space-y-6">
+            
+            <div class="space-y-3">
+              <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400 block">Restons en contact</span>
+              <h2 class="text-3xl sm:text-4xl font-extrabold text-main leading-tight">
+                Vous avez une opportunité ou un stage ? <br>
+                <span class="font-instrument text-4xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400">
+                  Construisons quelque chose de remarquable ensemble.
+                </span>
+              </h2>
+              <p class="text-muted text-xs sm:text-sm leading-relaxed">
+                Actuellement en recherche d'un stage pratique en entreprise. Je suis disponible pour échanger ou passer un entretien technique.
+              </p>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              
+              <!-- E-mail officiel avec bouton Copier -->
+              <div class="flex items-center justify-between p-3.5 rounded-2xl surface-card border shadow-xs">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-muted font-mono block">E-mail officiel</span>
+                    <span id="my-email" class="text-xs font-bold text-main">yogne.sihouli@iit.ci</span>
+                  </div>
+                </div>
+                <button id="copy-email-btn" class="px-3 py-1.5 rounded-full pill-bg text-[11px] font-bold transition-all border cursor-pointer hover:border-indigo-400">
+                  <span>Copier</span>
+                </button>
+              </div>
+
+              <!-- Localisation -->
+              <div class="flex items-center gap-3 p-3.5 rounded-2xl surface-card border shadow-xs">
+                <div class="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xs">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                </div>
+                <div>
+                  <span class="text-[10px] text-muted font-mono block">Localisation</span>
+                  <span class="text-xs font-bold text-main">Abidjan / Grand-Bassam, Côte d'Ivoire</span>
+                </div>
+              </div>
+
+              <!-- Institut -->
+              <div class="flex items-center gap-3 p-3.5 rounded-2xl surface-card border shadow-xs">
+                <div class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xs">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <div>
+                  <span class="text-[10px] text-muted font-mono block">Institut d'ingénierie</span>
+                  <span class="text-xs font-bold text-main">Institut Ivoirien de Technologie (IIT)</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Réseaux Sociaux -->
+            <div class="pt-2 flex items-center gap-3">
+              <a href="https://github.com/Yh290507" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-4 py-2 rounded-full pill-bg text-main hover:text-indigo-400 text-xs font-bold shadow-xs transition-all border">
+                <i class="devicon-github-original text-sm"></i>
+                <span>GitHub (@Yh290507) →</span>
+              </a>
+            </div>
+
+          </div>
+
+          <!-- Colonne Droite : Formulaire direct -->
+          <div class="lg:col-span-7">
+            <div class="surface-card rounded-3xl p-6 sm:p-8 border shadow-xs space-y-4">
+              <h3 class="text-lg font-bold text-main">Envoyez-moi un message direct</h3>
+
+              <form id="contact-form" class="space-y-4">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="name" class="block text-xs font-bold text-muted mb-1.5 font-mono">Votre Nom & Prénom *</label>
+                    <input type="text" id="name" required placeholder="Ex: Jean Dupont" class="w-full px-4 py-3 rounded-xl pill-bg border text-main placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 transition-colors">
+                  </div>
+                  <div>
+                    <label for="email" class="block text-xs font-bold text-muted mb-1.5 font-mono">Votre E-mail *</label>
+                    <input type="email" id="email" required placeholder="contact@entreprise.ci" class="w-full px-4 py-3 rounded-xl pill-bg border text-main placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 transition-colors">
+                  </div>
+                </div>
+
+                <div>
+                  <label for="subject" class="block text-xs font-bold text-muted mb-1.5 font-mono">Objet</label>
+                  <input type="text" id="subject" placeholder="Ex: Proposition de stage / Entretien technique" class="w-full px-4 py-3 rounded-xl pill-bg border text-main placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+
+                <div>
+                  <label for="message" class="block text-xs font-bold text-muted mb-1.5 font-mono">Votre Message *</label>
+                  <textarea id="message" rows="4" required placeholder="Bonjour Jean-Horeb, nous serions ravis d'échanger avec vous..." class="w-full px-4 py-3 rounded-xl pill-bg border text-main placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 transition-colors resize-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 px-6 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-wide shadow-md transition-all hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                  <span>Envoyer le message</span>
+                  <span>→</span>
+                </button>
+
+              </form>
+
+              <div id="form-success" class="hidden mt-3 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs text-center font-bold">
+                Merci pour votre message ! Je vous répondrai dans les plus brefs délais.
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================================== -->
+  <!-- MODALE POPUP DE DÉTAIL DU PROJET (CASE STUDY MODAL)        -->
+  <!-- ========================================================== -->
+  <div id="project-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div id="modal-backdrop-close" class="absolute inset-0"></div>
+    <div class="relative surface-card rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border space-y-5 animate-in fade-in zoom-in duration-200">
+      
+      <!-- En-tête de la modale -->
+      <div class="flex items-start justify-between border-b border-slate-700/50 pb-4">
+        <div>
+          <span id="modal-badge" class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-[11px] font-bold font-mono border border-indigo-500/20">
+            Catégorie
+          </span>
+          <h3 id="modal-title" class="text-2xl sm:text-3xl font-bold text-main mt-2">
+            Titre du projet
+          </h3>
+          <p id="modal-subtitle" class="font-instrument text-base text-muted mt-0.5"></p>
+        </div>
+        <button id="close-modal-btn" aria-label="Fermer" class="w-8 h-8 rounded-full pill-bg flex items-center justify-center font-bold text-sm cursor-pointer border hover:text-indigo-400">
+          ✕
+        </button>
+      </div>
+
+      <!-- Description détaillée -->
+      <p id="modal-desc" class="text-xs sm:text-sm text-muted leading-relaxed"></p>
+
+      <!-- Arborescence du code -->
+      <div class="space-y-2">
+        <span class="text-xs font-bold font-mono text-main uppercase tracking-wider">Arborescence du projet (VS Code) :</span>
+        <div id="modal-tree" class="pill-bg rounded-2xl p-4 border space-y-1"></div>
+      </div>
+
+      <!-- Points d'ingénierie -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold font-mono text-main uppercase tracking-wider">Points forts techniques :</span>
+        <ul id="modal-points" class="list-disc list-inside space-y-1"></ul>
+      </div>
+
+      <!-- Boutons de fermeture & VRAI GitHub -->
+      <div class="pt-4 border-t border-slate-700/50 flex items-center justify-end gap-3">
+        <button id="modal-backdrop-close" class="px-4 py-2.5 rounded-full border pill-bg text-xs font-bold text-main cursor-pointer">
+          Fermer
+        </button>
+        <a id="modal-repo-link" href="#" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-2 shadow-xs cursor-pointer transition-colors">
+          <i class="devicon-github-original"></i>
+          <span>Consulter le dépôt GitHub →</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================== -->
+  <!-- FOOTER SÉMANTIQUE (Mentions & Réseaux)                     -->
+  <!-- ========================================================== -->
+  <footer class="border-t border-slate-800/80 surface-card py-8 relative z-10 text-xs text-muted">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-bold text-white text-[10px]">
+          JH
+        </div>
+        <span class="font-medium">© 2026 Jean-Horeb Sihouli. Tous droits réservés.</span>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <a href="https://github.com/Yh290507" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors flex items-center gap-1.5 font-bold">
+          <i class="devicon-github-original"></i>
+          <span>GitHub</span>
+        </a>
+        <span class="text-slate-600">•</span>
+        <span class="text-muted font-semibold">Institut Ivoirien de Technologie (IIT)</span>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Bouton flottant "Retour en haut" -->
+  <button id="back-to-top" aria-label="Retour en haut" class="fixed bottom-6 right-6 z-30 w-11 h-11 rounded-full surface-card border text-main shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all opacity-0 pointer-events-none cursor-pointer">
+    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+  </button>
+
+  <!-- Script modulaire jQuery -->
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
