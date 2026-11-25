@@ -3,13 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Portfolio de Jean-Horeb Sihouli, étudiant en Licence 2 informatique à l'IIT. Projets logiciels, parcours et CV.">
+  <meta name="description" content="Portfolio de Jean-Horeb Sihouli : projets, développement front-end, architecture logicielle et compétences.">
   <meta name="theme-color" content="#1a221f">
   <title>Jean-Horeb Sihouli — Portfolio</title>
-  
+
+  <script>
+    try {
+      const introSeen = sessionStorage.getItem('portfolio-intro-seen') === '1';
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!introSeen && !reduceMotion) document.documentElement.classList.add('intro-pending');
+    } catch {}
+  </script>
+
   <!-- Tailwind CSS chargé depuis jsDelivr -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  
+
   <!-- jQuery pour les interactions de navigation, filtres et formulaire -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -22,18 +30,53 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Feuilles de style personnalisées (Arborescence modulaire VS Code) -->
-  <link rel="stylesheet" href="assets/css/custom.css">
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="antialiased relative min-h-screen">
 
-  <canvas id="ambient-canvas" aria-hidden="true"></canvas>
+  <div id="intro-screen" class="intro-screen" role="dialog" aria-modal="true" aria-label="Introduction au portfolio" aria-hidden="true">
+    <div class="intro-content">
+      <p class="intro-kicker">Jean-Horeb Sihouli · Développeur</p>
+      <h1 class="intro-title" aria-label="Bienvenue sur mon portfolio site web">
+        <span class="intro-word">Bienvenue</span>
+        <span class="intro-word">sur</span>
+        <span class="intro-word">mon</span>
+        <span class="intro-word">portfolio</span>
+        <span class="intro-word">site</span>
+        <span class="intro-word">web</span>
+      </h1>
+      <button id="skip-intro" class="intro-skip" type="button">Passer l’introduction <span aria-hidden="true">↗</span></button>
+    </div>
+    <span class="intro-index" aria-hidden="true">PORTFOLIO / 2026</span>
+  </div>
+
+  <div id="ambient-scene" aria-hidden="true">
+    <div class="ambient-world">
+      <span class="ambient-orbit ambient-orbit--large"></span>
+      <span class="ambient-orbit ambient-orbit--tilt"></span>
+      <span class="ambient-object ambient-sphere"></span>
+      <span class="ambient-object ambient-cube"></span>
+      <span class="ambient-object ambient-loop"></span>
+      <span class="ambient-orbit ambient-orbit--left"></span>
+      <span class="ambient-object ambient-cube ambient-cube--left"></span>
+      <span class="ambient-object ambient-sphere ambient-sphere--left"></span>
+      <span class="ambient-object ambient-loop ambient-loop--left"></span>
+      <span class="ambient-object ambient-cube ambient-cube--left-small"></span>
+      <span class="ambient-code ambient-code--left">DESIGN · LOGIC · 3D</span>
+      <span class="ambient-code ambient-code--one">&lt;data-flow /&gt;</span>
+      <span class="ambient-code ambient-code--two">0101 · API · 1100</span>
+      <span class="ambient-code ambient-code--three">render() → useful</span>
+    </div>
+    <div class="ambient-reveal-veil"></div>
+  </div>
+  <span class="cursor-light-trail" aria-hidden="true"></span>
   <div class="cursor-halo" aria-hidden="true"></div>
 
   <!-- Navigation principale -->
   <header class="fixed top-5 left-0 right-0 z-40 px-4 flex justify-center">
-    
+
     <div class="floating-nav px-5 py-2.5 flex items-center justify-between w-full max-w-6xl border">
-      
+
       <!-- Logo Jean-Horeb -->
       <a href="#accueil" class="flex items-center gap-2.5 group">
         <div class="monogram">JH</div>
@@ -43,24 +86,24 @@
       </a>
 
       <!-- Liens de navigation centrés -->
-      <nav aria-label="Navigation principale" class="hidden md:flex items-center gap-1 text-xs font-semibold text-muted">
+      <nav aria-label="Navigation principale" class="hidden lg:flex items-center gap-1 text-xs font-semibold text-muted">
         <a href="#accueil" class="nav-pill-link active-link">Accueil</a>
-        <a href="#projets" class="nav-pill-link">Projets</a>
         <a href="#cv" class="nav-pill-link">Parcours</a>
+        <a href="#services" class="nav-pill-link">Ce que je fais</a>
+        <a href="#projets" class="nav-pill-link">Projets</a>
         <a href="#resume" class="nav-pill-link">CV</a>
         <a href="#contact" class="nav-pill-link">Contact</a>
       </nav>
 
       <!-- Disponibilité et contact -->
       <div class="flex items-center gap-2.5">
-        
-        <span class="availability hidden lg:inline">Stage · déc. 2026</span>
+
         <a href="#contact" class="nav-contact">
           Me contacter
         </a>
 
         <!-- Bouton Burger Mobile -->
-        <button id="burger-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden w-8 h-8 rounded-full pill-bg flex flex-col justify-center items-center gap-1 focus:outline-none border">
+        <button id="burger-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu" class="lg:hidden w-8 h-8 rounded-full pill-bg flex flex-col justify-center items-center gap-1 focus:outline-none border">
           <span class="w-4 h-0.5 bg-current"></span>
           <span class="w-4 h-0.5 bg-current"></span>
           <span class="w-4 h-0.5 bg-current"></span>
@@ -70,18 +113,14 @@
     </div>
 
     <!-- Menu Déroulant Mobile -->
-    <div id="mobile-menu" aria-hidden="true" class="hidden md:hidden fixed top-20 left-4 right-4 floating-nav rounded-2xl p-5 space-y-3 shadow-2xl border">
+    <nav id="mobile-menu" aria-label="Navigation mobile" aria-hidden="true" class="hidden lg:hidden fixed top-20 left-4 right-4 floating-nav rounded-2xl p-5 space-y-3 shadow-2xl border">
       <a href="#accueil" class="mobile-link">Accueil</a>
-      <a href="#projets" class="mobile-link">Projets</a>
       <a href="#cv" class="mobile-link">Parcours</a>
+      <a href="#services" class="mobile-link">Ce que je fais</a>
+      <a href="#projets" class="mobile-link">Projets</a>
       <a href="#resume" class="mobile-link">CV</a>
       <a href="#contact" class="mobile-link">Contact</a>
-      <div class="pt-2 border-t border-slate-700/50">
-        <span class="availability">
-          Recherche de stage · décembre 2026
-        </span>
-      </div>
-    </div>
+    </nav>
   </header>
 
   <!-- ========================================================== -->
@@ -92,13 +131,12 @@
     <section id="accueil" class="hero max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
       <div class="hero-copy reveal">
         <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Informatique · Grand-Bassam, Côte d’Ivoire</p>
-        <h1>Je transforme les données en <span>outils utiles.</span></h1>
-        <p class="hero-intro">Étudiant en Licence 2 à l’Institut Ivoirien de Technologie, je conçois des applications Python et des systèmes de données.</p>
+        <h1 tabindex="-1">Je transforme les données en <span>outils utiles.</span></h1>
+        <p class="hero-intro">Design · Fonctionnalité · Logique</p>
         <div class="hero-actions">
           <a href="#projets" class="primary-action">Explorer mes projets <span aria-hidden="true">↘</span></a>
           <a href="#resume" class="secondary-action">Voir mon CV <span aria-hidden="true">↗</span></a>
         </div>
-        <p class="hero-availability"><span class="status-dot" aria-hidden="true"></span> Recherche de stage · décembre 2026</p>
       </div>
       <figure class="architecture-sheet reveal" aria-labelledby="architecture-caption">
         <figcaption id="architecture-caption"><span>Architecture applicative</span><span>BiblioIIT · 01</span></figcaption>
@@ -137,11 +175,184 @@
       </figure>
     </section>
 
+    <!-- SECTION 3 : PARCOURS ACADÉMIQUE IIT & COMPÉTENCES (+ SQL)  -->
     <!-- ========================================================== -->
-    <!-- SECTION 2 : PROJETS SÉLECTIONNÉS (Avec YH_amazone_scraper) -->
+    <section id="cv" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-slate-800/60">
+
+      <div class="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400 block">Formation & Compétences</span>
+        <h2 class="text-3xl sm:text-5xl font-extrabold text-main tracking-tight">
+          Mon parcours
+        </h2>
+        <p class="text-muted text-sm">
+          Formation en informatique à l’Institut Ivoirien de Technologie et projets réalisés en cours et en autonomie.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- Formation -->
+        <div class="lg:col-span-5 space-y-6">
+
+          <!-- Carte Formation IIT -->
+          <div class="case-card rounded-3xl p-7 space-y-6 border">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg border border-indigo-500/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-main text-base">Formation Universitaire</h3>
+                <p class="text-xs text-indigo-400 font-mono font-semibold">Institut Ivoirien de Technologie (IIT)</p>
+              </div>
+            </div>
+
+            <!-- Timeline IIT : 2 années de Licence -->
+            <div class="relative pl-6 border-l-2 border-indigo-500/40 space-y-6 pt-1">
+
+              <!-- Année 2 -->
+              <div class="relative">
+                <span class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-indigo-500 ring-4 ring-slate-900"></span>
+                <span class="text-xs font-mono text-indigo-400 block font-bold">2025 - 2026 (En cours)</span>
+                <h4 class="text-sm font-bold text-main">Licence 2 — Génie Logiciel & Informatique</h4>
+                <p class="text-xs text-muted mt-0.5">IIT (Grand-Bassam)</p>
+                <p class="text-xs text-muted mt-1.5 leading-relaxed">
+                  Conception logicielle avancée (MVC, Clean Architecture), persistance SQL (SQLite, SQL Server, mysql), suites de tests unitaires, algorithmique avancé et bases de données.
+                </p>
+              </div>
+
+              <!-- Année 1 -->
+              <div class="relative pt-2">
+                <span class="absolute -left-[31px] top-3 w-3.5 h-3.5 rounded-full bg-slate-600 ring-4 ring-slate-900"></span>
+                <span class="text-xs font-mono text-muted block font-bold">2024 - 2025</span>
+                <h4 class="text-sm font-bold text-main">Licence 1 — Tronc Commun Informatique</h4>
+                <p class="text-xs text-muted mt-0.5">IIT (Grand-Bassam)</p>
+                <p class="text-xs text-muted mt-1.5 leading-relaxed">
+                  Algorithmique en langage C et Python, structures de données, app fluter, architecture des machines et technologies du web (HTML5, CSS3, JavaScript).
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Langages et outils : logos compacts, sans grille de grandes cartes -->
+        <div class="lg:col-span-7 tech-panel reveal">
+          <div class="tech-heading">
+            <div>
+              <h3>Langages & outils</h3>
+              <p>Utilisés en formation et dans mes projets</p>
+            </div>
+            <span class="tech-count">15 repères</span>
+          </div>
+
+          <div class="tech-group" aria-label="Langages et technologies web">
+            <span class="tech-group-label">Langages & web</span>
+            <div class="tech-marquee" data-direction="right" role="group" tabindex="0" aria-label="Langages et technologies web, défilement de gauche à droite">
+              <div class="tech-track">
+                <div class="tech-list">
+              <span class="tech-item" title="Python"><i class="devicon-python-plain colored" aria-hidden="true"></i><span>Python</span></span>
+              <span class="tech-item" title="Langage C"><i class="devicon-c-plain colored" aria-hidden="true"></i><span>C</span></span>
+              <span class="tech-item" title="C sharp"><i class="devicon-csharp-plain colored" aria-hidden="true"></i><span>C#</span></span>
+              <span class="tech-item" title="Java"><i class="devicon-java-plain colored" aria-hidden="true"></i><span>Java</span></span>
+              <span class="tech-item" title="JavaScript"><i class="devicon-javascript-plain colored" aria-hidden="true"></i><span>JavaScript</span></span>
+              <span class="tech-item" title="SQL"><i class="devicon-microsoftsqlserver-plain colored" aria-hidden="true"></i><span>SQL</span></span>
+              <span class="tech-item" title="HTML5"><i class="devicon-html5-plain colored" aria-hidden="true"></i><span>HTML5</span></span>
+              <span class="tech-item" title="CSS3"><i class="devicon-css3-plain colored" aria-hidden="true"></i><span>CSS3</span></span>
+                </div>
+                <div class="tech-list tech-list-copy" aria-hidden="true">
+              <span class="tech-item" title="Python"><i class="devicon-python-plain colored"></i><span>Python</span></span>
+              <span class="tech-item" title="Langage C"><i class="devicon-c-plain colored"></i><span>C</span></span>
+              <span class="tech-item" title="C sharp"><i class="devicon-csharp-plain colored"></i><span>C#</span></span>
+              <span class="tech-item" title="Java"><i class="devicon-java-plain colored"></i><span>Java</span></span>
+              <span class="tech-item" title="JavaScript"><i class="devicon-javascript-plain colored"></i><span>JavaScript</span></span>
+              <span class="tech-item" title="SQL"><i class="devicon-microsoftsqlserver-plain colored"></i><span>SQL</span></span>
+              <span class="tech-item" title="HTML5"><i class="devicon-html5-plain colored"></i><span>HTML5</span></span>
+              <span class="tech-item" title="CSS3"><i class="devicon-css3-plain colored"></i><span>CSS3</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-group" aria-label="Outils et bases de données">
+            <span class="tech-group-label">Outils & données</span>
+            <div class="tech-marquee" data-direction="left" role="group" tabindex="0" aria-label="Outils et bases de données, défilement de droite à gauche">
+              <div class="tech-track">
+                <div class="tech-list">
+              <span class="tech-item" title="SQL Server"><i class="devicon-microsoftsqlserver-plain colored" aria-hidden="true"></i><span>SQL Server</span></span>
+              <span class="tech-item" title="SQLite"><i class="devicon-sqlite-plain colored" aria-hidden="true"></i><span>SQLite</span></span>
+              <span class="tech-item" title="Tailwind CSS"><i class="devicon-tailwindcss-original colored" aria-hidden="true"></i><span>Tailwind</span></span>
+              <span class="tech-item" title="Git"><i class="devicon-git-plain colored" aria-hidden="true"></i><span>Git</span></span>
+              <span class="tech-item" title="GitHub"><i class="devicon-github-original" aria-hidden="true"></i><span>GitHub</span></span>
+              <span class="tech-item" title="Visual Studio Code"><i class="devicon-vscode-plain colored" aria-hidden="true"></i><span>VS Code</span></span>
+              <span class="tech-item" title="jQuery"><i class="devicon-jquery-plain colored" aria-hidden="true"></i><span>jQuery</span></span>
+                </div>
+                <div class="tech-list tech-list-copy" aria-hidden="true">
+              <span class="tech-item" title="SQL Server"><i class="devicon-microsoftsqlserver-plain colored"></i><span>SQL Server</span></span>
+              <span class="tech-item" title="SQLite"><i class="devicon-sqlite-plain colored"></i><span>SQLite</span></span>
+              <span class="tech-item" title="Tailwind CSS"><i class="devicon-tailwindcss-original colored"></i><span>Tailwind</span></span>
+              <span class="tech-item" title="Git"><i class="devicon-git-plain colored"></i><span>Git</span></span>
+              <span class="tech-item" title="GitHub"><i class="devicon-github-original"></i><span>GitHub</span></span>
+              <span class="tech-item" title="Visual Studio Code"><i class="devicon-vscode-plain colored"></i><span>VS Code</span></span>
+              <span class="tech-item" title="jQuery"><i class="devicon-jquery-plain colored"></i><span>jQuery</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="tech-methods"><span>Méthodes</span> MVC · Service-Repository · tests avec Pytest</p>
+        </div>
+
+      </div>
+
+    </section>
+
+<section id="services" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-slate-800/60">
+      <div class="section-heading reveal">
+        <p class="eyebrow justify-center">Approche & savoir-faire</p>
+        <h2>Ce que je fais</h2>
+        <p>Je relie les besoins, les interfaces et le code pour construire des applications utiles.</p>
+      </div>
+
+      <div class="services-grid">
+        <article class="service-card reveal" tabindex="0" aria-labelledby="service-frontend-title">
+          <span class="service-index">01 / INTERFACE</span>
+          <div class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 6.5h.01M11 6.5h.01M8 13l-2 2 2 2M16 13l2 2-2 2M13.5 12.5l-1.5 5"/></svg></div>
+          <h3 id="service-frontend-title">Développement front-end</h3>
+          <p>Des interfaces web claires, accessibles et adaptées au téléphone comme à l’ordinateur.</p>
+          <span class="service-mark" aria-hidden="true">↗</span>
+        </article>
+
+        <article class="service-card reveal" tabindex="0" aria-labelledby="service-architecture-title">
+          <span class="service-index">02 / STRUCTURE</span>
+          <div class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="8" y="3" width="8" height="5" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><path d="M12 8v4M6.5 16v-4h11v4"/></svg></div>
+          <h3 id="service-architecture-title">Architecture logicielle</h3>
+          <p>Des modules organisés et des responsabilités séparées pour faciliter la maintenance.</p>
+          <span class="service-mark" aria-hidden="true">↗</span>
+        </article>
+
+        <article class="service-card reveal" tabindex="0" aria-labelledby="service-ui-title">
+          <span class="service-index">03 / EXPÉRIENCE</span>
+          <div class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 8h18M8 8v13M6 5.5h.01M9 5.5h.01M11 12h7M11 15h5"/></svg></div>
+          <h3 id="service-ui-title">Design UI/UX</h3>
+          <p>Des parcours simples et des choix d’interface pensés pour rendre chaque action compréhensible.</p>
+          <span class="service-mark" aria-hidden="true">↗</span>
+        </article>
+
+        <article class="service-card reveal" tabindex="0" aria-labelledby="service-ideas-title">
+          <span class="service-index">04 / CONCEPTION</span>
+          <div class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M8.5 14.5a6 6 0 1 1 7 0c-.8.6-1.3 1.3-1.5 2.5h-4c-.2-1.2-.7-1.9-1.5-2.5Z"/><path d="M12 2v2M4.9 4.9l1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></div>
+          <h3 id="service-ideas-title">Idées d’applications</h3>
+          <p>Transformer une idée ou un besoin concret en fonctionnalités et en prototype réalisable.</p>
+          <span class="service-mark" aria-hidden="true">↗</span>
+        </article>
+      </div>
+    </section>
+
+    <!-- SECTION 2 : PROJETS SÉLECTIONNÉS (Avec YH_amazon_scraper) -->
     <!-- ========================================================== -->
     <section id="projets" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-slate-800/60">
-      
+
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
         <div>
           <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400 block mb-2">Réalisations & Code source</span>
@@ -171,8 +382,8 @@
       </div>
 
       <!-- Grille responsive : 1 col mobile, 2 cols tablette, 3 cols ordinateur -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7" id="projects-grid">
-        
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" id="projects-grid">
+
         <!-- ========================================== -->
         <!-- PROJET 1 : COMPARATEUR DE PRIX (ABIDJAN)   -->
         <!-- ========================================== -->
@@ -183,22 +394,18 @@
             <div class="space-y-4">
               <div class="flex items-center justify-between">
                 <span class="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5">
-                  <i class="devicon-python-plain colored"></i>
                   Data & Algorithmique
                 </span>
                 <span class="text-xs font-mono text-muted">2026</span>
               </div>
 
-              <div>
-                <h3 class="text-2xl font-bold text-main group-hover:text-indigo-400 transition-colors">
-                  Comparateur de Prix Multi-Enseignes
-                </h3>
-                <p class="font-instrument text-lg text-muted mt-0.5">
-                  Marché Lagune, Baobab Shop & Comptoir Ivoire
-                </p>
+              <div class="project-title-row">
+                <div class="project-emblem" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 25V17h6v8M13 25V10h6v15M21 25V5h6v20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M4 27h24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+                <div class="project-title-copy"><h3 class="text-2xl font-bold text-main group-hover:text-indigo-400 transition-colors">Comparateur de Prix Multi-Enseignes</h3>
+                  <p class="font-instrument text-lg text-muted mt-0.5">Marché Lagune, Baobab Shop & Comptoir Ivoire</p></div>
               </div>
 
-              <p class="text-muted text-xs sm:text-sm leading-relaxed">
+              <p class="project-description text-muted text-xs sm:text-sm leading-relaxed">
                 Application Python en architecture <strong>MVC</strong>. Optimisation algorithmique avec indexation par dictionnaire en <strong>O(H + Q)</strong>, détection des anomalies de prix (&ge; 10%) et exports de rapports.
               </p>
 
@@ -213,7 +420,7 @@
             <!-- Liens directs GitHub -->
             <div class="pt-6 mt-6 border-t border-slate-700/40 flex items-center justify-between">
               <button data-project="comparateur" class="open-modal-btn text-indigo-400 hover:text-indigo-300 text-xs font-bold flex items-center gap-1.5 group-hover:underline cursor-pointer">
-                <span>Détails & Code</span>
+                <span>Plus de détails</span>
                 <span class="arrow-slide">→</span>
               </button>
               <a href="https://github.com/Yh290507/Analyse_comparative_Yh" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-full pill-bg hover:bg-indigo-600 hover:text-white text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border">
@@ -235,22 +442,18 @@
             <div class="space-y-4">
               <div class="flex items-center justify-between">
                 <span class="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center gap-1.5">
-                  <i class="devicon-python-plain colored"></i>
                   Génie Logiciel & SQL
                 </span>
                 <span class="text-xs font-mono text-muted">Projet IIT</span>
               </div>
 
-              <div>
-                <h3 class="text-2xl font-bold text-main group-hover:text-indigo-400 transition-colors">
-                  BiblioIIT — Bibliothèque Universitaire
-                </h3>
-                <p class="font-instrument text-lg text-muted mt-0.5">
-                  Clean Architecture & Fonds de Littérature Africaine
-                </p>
+              <div class="project-title-row">
+                <div class="project-emblem" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 8.5c0-1.1.9-2 2-2h7v19H7c-1.1 0-2-.9-2-2v-15ZM27 8.5c0-1.1-.9-2-2-2h-7v19h7c1.1 0 2-.9 2-2v-15Z" stroke="currentColor" stroke-width="1.6"/><path d="M14 9h4M14 24h4" stroke="currentColor" stroke-width="1.4"/></svg></div>
+                <div class="project-title-copy"><h3 class="text-2xl font-bold text-main group-hover:text-indigo-400 transition-colors">BiblioIIT — Bibliothèque Universitaire</h3>
+                  <p class="font-instrument text-lg text-muted mt-0.5">Clean Architecture & Fonds de Littérature Africaine</p></div>
               </div>
 
-              <p class="text-muted text-xs sm:text-sm leading-relaxed">
+              <p class="project-description text-muted text-xs sm:text-sm leading-relaxed">
                 Système d'Information et de Gestion de Bibliothèque pour l'IIT. Architecture découplée <strong>Service-Repository</strong>, persistance <strong>SQLite</strong>, 19 tests automatisés et moteur strict de règles de gestion.
               </p>
 
@@ -264,7 +467,7 @@
 
             <div class="pt-6 mt-6 border-t border-slate-700/40 flex items-center justify-between">
               <button data-project="biblio" class="open-modal-btn text-indigo-400 hover:text-indigo-300 text-xs font-bold flex items-center gap-1.5 group-hover:underline cursor-pointer">
-                <span>Détails & Code</span>
+                <span>Plus de détails</span>
                 <span class="arrow-slide">→</span>
               </button>
               <a href="https://github.com/Yh290507/yh_biblioIIT" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-full pill-bg hover:bg-indigo-600 hover:text-white text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border">
@@ -286,39 +489,36 @@
             <div class="space-y-4">
               <div class="flex items-center justify-between">
                 <span class="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center gap-1.5">
-                  <i class="devicon-python-plain colored"></i>
                   Web Scraping
                 </span>
                 <span class="text-xs font-mono text-cyan-400 font-semibold">GitHub Repo</span>
               </div>
 
-              <div>
-                <h3 class="text-2xl font-bold text-main group-hover:text-cyan-400 transition-colors">
-                  Amazon Web Scraper
-                </h3>
-                <p class="font-instrument text-lg text-muted mt-0.5">
-                  Extraction Automatisée & Parsing de Données E-Commerce
-                </p>
+              <div class="project-title-row">
+                <div class="project-emblem" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><circle cx="13.5" cy="13.5" r="7.5" stroke="currentColor" stroke-width="1.7"/><path d="m19 19 7 7M9.5 13.5h8M13.5 9.5v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+                <div class="project-title-copy"><h3 class="text-2xl font-bold text-main group-hover:text-cyan-400 transition-colors">Amazon Web Scraper</h3>
+                  <p class="font-instrument text-lg text-muted mt-0.5">Extraction automatisée & données e-commerce</p></div>
               </div>
 
-              <p class="text-muted text-xs sm:text-sm leading-relaxed">
+              <p class="project-description text-muted text-xs sm:text-sm leading-relaxed">
                 Robot d'extraction développé en Python pour collecter, nettoyer et structurer les catalogues de produits Amazon (titres, tarifs en direct, évaluations et avis clients) avec export automatique.
               </p>
 
               <div class="flex flex-wrap gap-1.5 pt-2 font-mono text-[11px]">
                 <span class="px-2.5 py-1 rounded-md pill-bg border">Python</span>
-                <span class="px-2.5 py-1 rounded-md pill-bg border">BeautifulSoup</span>
-                <span class="px-2.5 py-1 rounded-md pill-bg border">Requests</span>
-                <span class="px-2.5 py-1 rounded-md pill-bg border">CSV / JSON</span>
+                <span class="px-2.5 py-1 rounded-md pill-bg border">Selenium</span>
+                <span class="project-format"><span aria-hidden="true">▤</span> CSV</span>
+                <span class="project-format"><span aria-hidden="true">{ }</span> JSON</span>
+                <span class="project-format project-format-excel"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M2 2h8l4 4v8H2z" fill="currentColor" opacity=".18"/><path d="M10 2v4h4M4.2 8l2.1 3.8m0-3.8L4.2 11.8M8 8v3.8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"/></svg> Excel</span>
               </div>
             </div>
 
             <div class="pt-6 mt-6 border-t border-slate-700/40 flex items-center justify-between">
               <button data-project="amazon" class="open-modal-btn text-cyan-400 hover:text-cyan-300 text-xs font-bold flex items-center gap-1.5 group-hover:underline cursor-pointer">
-                <span>Détails & Code</span>
+                <span>Plus de détails</span>
                 <span class="arrow-slide">→</span>
               </button>
-              <a href="https://github.com/Yh290507/YH_amazone_scraper" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-full pill-bg hover:bg-cyan-600 hover:text-white text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border">
+              <a href="https://github.com/Yh290507/YH_amazon_scraper" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-full pill-bg hover:bg-cyan-600 hover:text-white text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border">
                 <i class="devicon-github-original"></i>
                 <span>Dépôt GitHub →</span>
               </a>
@@ -330,182 +530,65 @@
       </div>
     </section>
 
+
+
+
+
     <!-- ========================================================== -->
-    <!-- SECTION 3 : PARCOURS ACADÉMIQUE IIT & COMPÉTENCES (+ SQL)  -->
+
+
     <!-- ========================================================== -->
-    <section id="cv" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-slate-800/60">
-      
-      <div class="text-center max-w-2xl mx-auto mb-14 space-y-3">
-        <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400 block">Formation & Compétences</span>
-        <h2 class="text-3xl sm:text-5xl font-extrabold text-main tracking-tight">
-          Mon parcours
-        </h2>
-        <p class="text-muted text-sm">
-          Formation en informatique à l’Institut Ivoirien de Technologie et projets réalisés en cours et en autonomie.
-        </p>
-      </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        <!-- Colonne Gauche : Formation & Téléchargement CV -->
-        <div class="lg:col-span-5 space-y-6">
-          
-          <!-- Carte Formation IIT -->
-          <div class="case-card rounded-3xl p-7 space-y-6 border">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg border border-indigo-500/20">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
-              </div>
-              <div>
-                <h3 class="font-bold text-main text-base">Formation Universitaire</h3>
-                <p class="text-xs text-indigo-400 font-mono font-semibold">Institut Ivoirien de Technologie (IIT)</p>
-              </div>
-            </div>
-
-            <!-- Timeline IIT : 2 années de Licence -->
-            <div class="relative pl-6 border-l-2 border-indigo-500/40 space-y-6 pt-1">
-              
-              <!-- Année 2 -->
-              <div class="relative">
-                <span class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-indigo-500 ring-4 ring-slate-900"></span>
-                <span class="text-xs font-mono text-indigo-400 block font-bold">2025 - 2026 (En cours)</span>
-                <h4 class="text-sm font-bold text-main">Licence 2 — Génie Logiciel & Informatique</h4>
-                <p class="text-xs text-muted mt-0.5">IIT (Grand-Bassam)</p>
-                <p class="text-xs text-muted mt-1.5 leading-relaxed">
-                  Conception logicielle avancée (MVC, Clean Architecture), persistance SQL (SQLite, SQL Server), suites de tests unitaires, algorithmique et bases de données.
-                </p>
-              </div>
-
-              <!-- Année 1 -->
-              <div class="relative pt-2">
-                <span class="absolute -left-[31px] top-3 w-3.5 h-3.5 rounded-full bg-slate-600 ring-4 ring-slate-900"></span>
-                <span class="text-xs font-mono text-muted block font-bold">2024 - 2025</span>
-                <h4 class="text-sm font-bold text-main">Licence 1 — Tronc Commun Informatique</h4>
-                <p class="text-xs text-muted mt-0.5">IIT (Grand-Bassam)</p>
-                <p class="text-xs text-muted mt-1.5 leading-relaxed">
-                  Algorithmique en langage C et Python, structures de données, architecture des machines et technologies du web (HTML5, CSS3, JavaScript).
-                </p>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Carte Téléchargement du CV officiel -->
-          <div class="rounded-3xl surface-card border p-7 space-y-4 shadow-sm relative overflow-hidden">
-            
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono uppercase tracking-wider text-indigo-400 font-bold">Curriculum Vitae</span>
-              <span class="text-xs px-2.5 py-0.5 rounded-full pill-bg font-mono font-semibold border">Format PDF A4</span>
-            </div>
-
-            <h3 class="font-instrument text-3xl text-main">Mon CV Professionnel</h3>
-            <p class="text-muted text-xs leading-relaxed">
-              Consultez mon CV complet détaillant l'ensemble de mes compétences, projets universitaires à l'IIT et coordonnées.
-            </p>
-
-            <div class="pt-2">
-              <a href="assets/docs/cv.pdf" download="CV_Jean_Horeb_Sihouli.pdf" id="download-cv-btn" class="w-full py-3.5 px-5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-wide shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                <span>Télécharger mon CV (PDF)</span>
-              </a>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Langages et outils : logos compacts, sans grille de grandes cartes -->
-        <div class="lg:col-span-7 tech-panel reveal">
-          <div class="tech-heading">
-            <div>
-              <h3>Langages & outils</h3>
-              <p>Utilisés en formation et dans mes projets</p>
-            </div>
-            <span class="tech-count">14 repères</span>
-          </div>
-
-          <div class="tech-group" aria-label="Langages et technologies web">
-            <span class="tech-group-label">Langages & web</span>
-            <div class="tech-list">
-              <span class="tech-item" title="Python"><i class="devicon-python-plain colored" aria-hidden="true"></i><span>Python</span></span>
-              <span class="tech-item" title="Langage C"><i class="devicon-c-plain colored" aria-hidden="true"></i><span>C</span></span>
-              <span class="tech-item" title="Java"><i class="devicon-java-plain colored" aria-hidden="true"></i><span>Java</span></span>
-              <span class="tech-item" title="JavaScript"><i class="devicon-javascript-plain colored" aria-hidden="true"></i><span>JavaScript</span></span>
-              <span class="tech-item" title="SQL"><i class="devicon-microsoftsqlserver-plain colored" aria-hidden="true"></i><span>SQL</span></span>
-              <span class="tech-item" title="HTML5"><i class="devicon-html5-plain colored" aria-hidden="true"></i><span>HTML5</span></span>
-              <span class="tech-item" title="CSS3"><i class="devicon-css3-plain colored" aria-hidden="true"></i><span>CSS3</span></span>
-            </div>
-          </div>
-
-          <div class="tech-group" aria-label="Outils et bases de données">
-            <span class="tech-group-label">Outils & données</span>
-            <div class="tech-list">
-              <span class="tech-item" title="SQL Server"><i class="devicon-microsoftsqlserver-plain colored" aria-hidden="true"></i><span>SQL Server</span></span>
-              <span class="tech-item" title="SQLite"><i class="devicon-sqlite-plain colored" aria-hidden="true"></i><span>SQLite</span></span>
-              <span class="tech-item" title="Tailwind CSS"><i class="devicon-tailwindcss-original colored" aria-hidden="true"></i><span>Tailwind</span></span>
-              <span class="tech-item" title="Git"><i class="devicon-git-plain colored" aria-hidden="true"></i><span>Git</span></span>
-              <span class="tech-item" title="GitHub"><i class="devicon-github-original" aria-hidden="true"></i><span>GitHub</span></span>
-              <span class="tech-item" title="Visual Studio Code"><i class="devicon-vscode-plain colored" aria-hidden="true"></i><span>VS Code</span></span>
-              <span class="tech-item" title="jQuery"><i class="devicon-jquery-plain colored" aria-hidden="true"></i><span>jQuery</span></span>
-            </div>
-          </div>
-
-          <p class="tech-methods"><span>Méthodes</span> MVC · Service-Repository · tests avec Pytest</p>
-        </div>
-
-      </div>
-
-    </section>
 
     <section id="resume" class="resume-section max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
       <div class="resume-layout">
         <div class="resume-copy reveal">
-          <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Document · PDF A4</p>
+          <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Profil professionnel</p>
           <h2>Mon CV</h2>
-          <p class="resume-intro">Mon parcours en informatique, mes projets et les compétences que je développe à l’IIT.</p>
+          <p class="resume-intro">Un aperçu interactif de mon parcours, de mes projets et des outils que j’utilise à l’IIT.</p>
           <div class="resume-details">
             <span>Licence 2 · Génie logiciel</span>
             <span>Grand-Bassam · Côte d’Ivoire</span>
           </div>
-          <div class="resume-actions">
-            <a href="assets/docs/cv.pdf" download="CV_Jean_Horeb_Sihouli.pdf" class="primary-action">Télécharger le CV <span aria-hidden="true">↓</span></a>
-            <a href="assets/docs/cv.pdf" target="_blank" rel="noopener noreferrer" class="secondary-action">Ouvrir le PDF <span aria-hidden="true">↗</span></a>
-          </div>
-          <p class="resume-note">Le document peut aussi être consulté dans l’aperçu à droite.</p>
+          <a href="assets/docs/cv.pdf" download="CV_Jean_Horeb_Sihouli.pdf" class="primary-action resume-download">Télécharger le CV <span aria-hidden="true">↓</span></a>
         </div>
         <div class="resume-document reveal">
-          <div class="resume-viewer">
-            <a href="assets/docs/cv.pdf" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir le CV PDF complet dans un nouvel onglet">
-              <img src="assets/docs/cv-preview.png" alt="Page A4 du CV de Jean-Horeb Sihouli" loading="lazy">
-            </a>
+          <div class="digital-cv" role="group" aria-label="Aperçu numérique du profil professionnel de Jean-Horeb Sihouli">
+            <div class="digital-cv-back" aria-hidden="true"></div>
+            <div class="digital-cv-face">
+              <div class="digital-cv-topline"><span>PROFIL / 2026</span><span class="digital-cv-status"><i></i> Ouvert aux échanges</span></div>
+              <div class="digital-cv-identity"><div class="digital-cv-monogram">JH</div><div><h3>Jean-Horeb Sihouli</h3><p>Développement logiciel · Informatique</p></div></div>
+              <div class="digital-cv-divider"></div>
+              <div class="digital-cv-columns">
+                <div><span class="digital-cv-label">Parcours</span><strong>Licence 2</strong><p>Génie logiciel<br>Institut Ivoirien de Technologie</p></div>
+                <div><span class="digital-cv-label">Approche</span><strong>Du besoin au produit</strong><p>Architecture · données<br>Interfaces web</p></div>
+              </div>
+              <div class="digital-cv-footer"><span>Python&nbsp; · &nbsp;C#&nbsp; · &nbsp;SQL&nbsp; · &nbsp;JavaScript</span><span>Abidjan, CI</span></div>
+            </div>
+            <span class="digital-cv-index" aria-hidden="true">01 — 01</span>
           </div>
         </div>
       </div>
     </section>
     <!-- Contact -->
     <section id="contact" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-slate-800/60">
-      
-      <div class="case-card rounded-3xl p-8 sm:p-12 border relative overflow-hidden">
-        
+        <div class="contact-invitation reveal">
+          <p class="eyebrow justify-center">Prochaine étape</p>
+          <h2>Vous avez une opportunité ou un stage&nbsp;?</h2>
+          <p>Je suis disponible pour échanger sur vos projets et les possibilités de collaboration.</p>
+          <button id="show-contact-form" class="primary-action" type="button" aria-controls="contact-form-panel" aria-expanded="false">
+            <span class="contact-button-label">Remplir le formulaire de contact</span><span class="contact-button-arrow" aria-hidden="true">↓</span>
+          </button>
+        </div>
+
+        <div id="contact-form-panel" class="contact-form-panel" hidden aria-hidden="true">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          
+
           <!-- Colonne Gauche : Coordonnées -->
           <div class="lg:col-span-5 space-y-6">
-            
-            <div class="space-y-3">
-              <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400 block">Restons en contact</span>
-              <h2 class="text-3xl sm:text-4xl font-extrabold text-main leading-tight">
-                Vous avez une opportunité ou un stage ? <br>
-                <span class="font-instrument text-4xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400">
-                  Construisons quelque chose de remarquable ensemble.
-                </span>
-              </h2>
-              <p class="text-muted text-xs sm:text-sm leading-relaxed">
-                Actuellement en recherche d'un stage pratique en entreprise. Je suis disponible pour échanger ou passer un entretien technique.
-              </p>
-            </div>
 
             <div class="space-y-3 pt-2">
-              
+
               <!-- E-mail officiel avec bouton Copier -->
               <div class="flex items-center justify-between p-3.5 rounded-2xl surface-card border shadow-xs">
                 <div class="flex items-center gap-3">
@@ -559,14 +642,14 @@
           <!-- Colonne Droite : Formulaire direct -->
           <div class="lg:col-span-7">
             <div class="surface-card rounded-3xl p-6 sm:p-8 border shadow-xs space-y-4">
-              <h3 class="text-lg font-bold text-main">Envoyez-moi un message direct</h3>
+              <div class="contact-form-heading"><h3 class="text-lg font-bold text-main">Envoyez-moi un message direct</h3><button id="hide-contact-form" type="button" aria-label="Réduire le formulaire">Réduire <span aria-hidden="true">↑</span></button></div>
 
               <form id="contact-form" class="space-y-4">
-                
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label for="name" class="block text-xs font-bold text-muted mb-1.5 font-mono">Votre Nom & Prénom *</label>
-                    <input type="text" id="name" required placeholder="Ex: Jean Dupont" class="w-full px-4 py-3 rounded-xl pill-bg border text-main placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 transition-colors">
+                    <input type="text" id="name" required placeholder="Ex : Jean-Horeb Sihouli" class="w-full px-4 py-3 rounded-xl pill-bg border text-main placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 transition-colors">
                   </div>
                   <div>
                     <label for="email" class="block text-xs font-bold text-muted mb-1.5 font-mono">Votre E-mail *</label>
@@ -599,9 +682,7 @@
           </div>
 
         </div>
-
-      </div>
-
+        </div>
     </section>
 
   </main>
@@ -609,10 +690,10 @@
   <!-- ========================================================== -->
   <!-- MODALE POPUP DE DÉTAIL DU PROJET (CASE STUDY MODAL)        -->
   <!-- ========================================================== -->
-  <div id="project-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div id="project-modal" class="project-modal fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4" aria-hidden="true">
     <div id="modal-backdrop-close" class="absolute inset-0"></div>
-    <div class="relative surface-card rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border space-y-5 animate-in fade-in zoom-in duration-200">
-      
+    <div id="project-modal-panel" class="project-modal-panel relative surface-card rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border space-y-5" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+
       <!-- En-tête de la modale -->
       <div class="flex items-start justify-between border-b border-slate-700/50 pb-4">
         <div>
@@ -663,7 +744,7 @@
   <!-- ========================================================== -->
   <footer class="border-t border-slate-800/80 surface-card py-8 relative z-10 text-xs text-muted">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-      
+
       <div class="flex items-center gap-2">
         <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-bold text-white text-[10px]">
           JH
@@ -689,6 +770,6 @@
   </button>
 
   <!-- Script modulaire jQuery -->
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/script.js"></script>
 </body>
 </html>

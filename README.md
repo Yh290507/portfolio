@@ -1,31 +1,34 @@
 # Portfolio de Jean-Horeb Sihouli
 
-Portfolio personnel de Jean-Horeb Sihouli, étudiant en Licence 2 informatique à l’Institut Ivoirien de Technologie (IIT), à Grand-Bassam, en Côte d’Ivoire. Le site présente son parcours, ses projets de développement, ses compétences techniques et son CV.
+Portfolio personnel de Jean-Horeb Sihouli, étudiant en Licence 2 informatique à l’Institut Ivoirien de Technologie (IIT), à Grand-Bassam, en Côte d’Ivoire. Il présente ses domaines d’activité, son parcours, ses projets, ses compétences techniques et son CV.
 
 ## Contenu du site
 
-- **Accueil** — présentation, recherche de stage et schéma 3D de l’architecture logicielle de BiblioIIT.
+- **Accueil** — présentation et schéma 3D de l’architecture logicielle de BiblioIIT.
+- **Ce que je fais** — développement front-end, architecture logicielle, design UI/UX et conception d’idées d’applications.
 - **Navigation** — menu vers les rubriques du portfolio, adapté aux écrans mobiles.
 - **Projets** — comparateur de prix, application de bibliothèque BiblioIIT et Amazon Web Scraper, avec accès aux dépôts GitHub.
 - **Parcours** — formation à l’IIT, langages et outils utilisés dans les cours et projets.
-- **CV** — aperçu de la page A4 sans barre d’outils, ouverture du PDF complet dans un nouvel onglet et téléchargement.
-- **Contact** — coordonnées et formulaire qui prépare un courriel dans l’application de messagerie du visiteur. Le formulaire n’envoie pas de données à un serveur.
+- **CV** — présentation numérique du profil avec téléchargement du CV au format PDF.
+- **Contact** — coordonnées et formulaire révélé à la demande, qui prépare un courriel dans l’application de messagerie du visiteur. Le formulaire n’envoie pas de données à un serveur.
+
+Les rubriques suivent cet ordre après l’accueil : Parcours, Ce que je fais, Projets, CV et Contact. La grille des projets affiche trois cartes côte à côte sur grand écran, puis s’adapte aux écrans moyens et aux téléphones.
 
 ## Projets présentés
 
 - **Comparateur de prix multi-enseignes** — application Python pour comparer les offres de plusieurs commerces à Abidjan et exporter les résultats.
 - **BiblioIIT** — application de gestion de bibliothèque, organisée autour des services, des règles métier et d’une base SQLite.
-- **Amazon Web Scraper** — projet Python d’extraction, de préparation et d’export de données produit.
+- **Amazon Web Scraper** — projet Python utilisant Selenium pour l’extraction, le nettoyage et l’export de données produit en CSV, JSON et Excel.
 
 ## Technologies et outils
 
 Les icônes de technologies sont fournies par [Devicon](https://devicon.dev/).
 
-- **Langages et web :** Python, C, Java, JavaScript, SQL, HTML5 et CSS3.
+- **Langages et web :** Python, C, C#, Java, JavaScript, SQL, HTML5 et CSS3.
 - **Données et outils :** SQL Server, SQLite, Tailwind CSS, Git, GitHub et Visual Studio Code.
 - **Méthodes :** MVC, Service-Repository et tests avec Pytest.
 
-Le site est réalisé en HTML, CSS et JavaScript. Tailwind CSS est chargé depuis son CDN et jQuery gère certaines interactions. Une trame animée en canvas, les révélations au défilement et la loupe de texte sont réalisées en JavaScript et CSS. Les effets respectent le réglage de réduction des animations du navigateur. Le portfolio est statique et peut être hébergé sur GitHub Pages.
+Le site est réalisé en HTML, CSS et JavaScript. Tailwind CSS est chargé depuis son CDN et jQuery gère certaines interactions. Le portfolio comprend une introduction courte, des animations d’apparition qui se rejouent au défilement, des cartes en perspective, des rubans de technologies, une trame de constellations en mouvement, une loupe qui colore les lettres près du curseur et une présentation numérique en relief du CV. Les filtres de projets mettent le projet choisi en avant dans une carte horizontale pleine largeur, puis rétablissent la grille lorsqu’on revient à « Tous les projets ». Le formulaire de contact peut être ouvert ou replié et prépare un courriel dans l’application de messagerie du visiteur. Les animations tiennent compte du réglage de réduction des animations du navigateur et les effets de survol sont adaptés aux écrans tactiles. Le portfolio est statique et peut être hébergé sur GitHub Pages.
 
 ## Vidéo explicative du portfolio
 
@@ -39,23 +42,18 @@ Le site est réalisé en HTML, CSS et JavaScript. Tailwind CSS est chargé depui
 ├── README.md
 └── assets/
     ├── css/
-    │   └── custom.css
+    │   └── style.css
     ├── docs/
-    │   ├── cv.pdf
-    │   └── cv-preview.png
+    │   └── cv.pdf
     └── js/
-        └── main.js
+        └── script.js
 ```
 
 ## Lancer le portfolio en local
 
 Ouvrez `index.html` dans un navigateur. Pour charger les ressources et prévisualiser le PDF dans des conditions proches d’un site hébergé, lancez un serveur local, par exemple avec l’extension **Live Server** de Visual Studio Code.
 
-Pour actualiser le CV, remplacez `assets/docs/cv.pdf` en conservant ce nom de fichier, puis régénérez `assets/docs/cv-preview.png` pour synchroniser l’aperçu A4 affiché sur le site. Avec Poppler, la commande suivante produit cette image :
-
-```bash
-pdftoppm -f 1 -l 1 -singlefile -png -r 144 assets/docs/cv.pdf assets/docs/cv-preview
-```
+Pour actualiser le CV, remplacez `assets/docs/cv.pdf` en conservant ce nom de fichier. Le bouton de la rubrique **CV** télécharge ce PDF ; l’aperçu présenté directement sur le site est une composition numérique intégrée à la page.
 
 ## Publier sur GitHub Pages
 
